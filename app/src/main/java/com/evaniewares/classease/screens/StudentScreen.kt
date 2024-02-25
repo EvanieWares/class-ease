@@ -233,7 +233,7 @@ private fun StudentRow(
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(2.dp)
-                .weight(1f)
+                .weight(2f)
         )
         IconButton(
             onClick = { onEditButtonClick(student) },
@@ -286,7 +286,7 @@ private fun StudentHeader() {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(2.dp)
-                .weight(1f)
+                .weight(2f)
         )
         Spacer(modifier = Modifier.weight(1f))
         Spacer(modifier = Modifier.weight(1f))
