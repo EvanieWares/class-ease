@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.evaniewares.classease.domain.model.StudentEntity
+import com.evaniewares.classease.navigation.Screen
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -19,6 +20,9 @@ interface StudentDao {
 
     @Delete
     suspend fun deleteStudent(studentEntity: StudentEntity): Int
+
+    @Query("SELECT * from students WHERE student_id = :studentId")
+    suspend fun getStudentById(studentId: Long): StudentEntity?
 
     @Query(
         "SELECT * FROM students " +

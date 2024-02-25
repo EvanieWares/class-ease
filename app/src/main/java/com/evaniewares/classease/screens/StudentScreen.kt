@@ -362,7 +362,7 @@ private fun EditStudentDialog(
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(text = "")
+                Text(text = "Enter student ID, name and select gender")
                 Column(
                     modifier = Modifier
                         .fillMaxWidth(),

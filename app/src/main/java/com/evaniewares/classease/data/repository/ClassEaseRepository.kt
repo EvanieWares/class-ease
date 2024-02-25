@@ -13,6 +13,8 @@ class ClassEaseRepository(
 
     suspend fun deleteStudent(studentEntity: StudentEntity): Int = studentDao.deleteStudent(studentEntity)
 
+    suspend fun getStudentById(studentId: Long): StudentEntity? = studentDao.getStudentById(studentId)
+
     fun getStudentsSortByGrade(): Flow<List<StudentEntity>> = studentDao.getStudentsSortByGrade()
 
     fun getStudentsSortById(): Flow<List<StudentEntity>> = studentDao.getStudentsSortById()
