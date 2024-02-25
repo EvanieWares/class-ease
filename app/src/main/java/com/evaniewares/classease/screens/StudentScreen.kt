@@ -1,6 +1,7 @@
 package com.evaniewares.classease.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -34,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -210,86 +213,99 @@ private fun StudentRow(
     onEditButtonClick: (StudentEntity) -> Unit,
     onDeleteButtonClick: (StudentEntity) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .padding(10.dp, 2.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, Color.Black)
     ) {
-        Text(
-            text = "${student.studentId}.",
-            textAlign = TextAlign.Center,
+        Row(
             modifier = Modifier
-                .padding(2.dp)
-                .weight(1f)
-        )
-        Text(
-            text = student.studentName,
-            modifier = Modifier
-                .padding(2.dp)
-                .weight(8f)
-        )
-        Text(
-            text = student.gender,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(2.dp)
-                .weight(2f)
-        )
-        IconButton(
-            onClick = { onEditButtonClick(student) },
-            modifier = Modifier
-                .size(18.dp)
-                .weight(1f)
+                .fillMaxWidth()
+                .padding(10.dp, 2.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = "Edit ${student.studentName}"
+            Text(
+                text = "${student.studentId}.",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(2.dp)
+                    .weight(1f)
             )
-        }
-        IconButton(
-            onClick = { onDeleteButtonClick(student) },
-            modifier = Modifier
-                .size(18.dp)
-                .weight(1f)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Delete ${student.studentName}",
-                tint = DangerColor
+            Text(
+                text = student.studentName,
+                modifier = Modifier
+                    .padding(2.dp)
+                    .weight(8f)
             )
+            Text(
+                text = student.gender,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(2.dp)
+                    .weight(2f)
+            )
+            IconButton(
+                onClick = { onEditButtonClick(student) },
+                modifier = Modifier
+                    .size(18.dp)
+                    .weight(1f)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit ${student.studentName}"
+                )
+            }
+            IconButton(
+                onClick = { onDeleteButtonClick(student) },
+                modifier = Modifier
+                    .size(18.dp)
+                    .weight(1f)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete ${student.studentName}",
+                    tint = DangerColor
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun StudentHeader() {
-    Row(
-        modifier = Modifier.padding(10.dp, 5.dp)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, Color.Black)
     ) {
-        Text(
-            text = "ID",
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
+        Row(
             modifier = Modifier
-                .padding(2.dp)
-                .weight(1f)
-        )
-        Text(
-            text = "STUDENT NAME",
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(2.dp)
-                .weight(8f)
-        )
-        Text(
-            text = "SEX",
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(2.dp)
-                .weight(2f)
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.weight(1f))
+                .fillMaxWidth()
+                .padding(10.dp, 5.dp)
+        ) {
+            Text(
+                text = "ID",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(2.dp)
+                    .weight(1f)
+            )
+            Text(
+                text = "STUDENT NAME",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(2.dp)
+                    .weight(8f)
+            )
+            Text(
+                text = "SEX",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(2.dp)
+                    .weight(2f)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(1f))
+        }
     }
 }
 
@@ -304,9 +320,18 @@ private fun DeleteStudentDialog(
         confirmButton = {
             Button(
                 onClick = { onConfirm(student) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(DangerColor)
             ) {
                 Text(text = "Confirm")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "Cancel")
             }
         },
         text = {
