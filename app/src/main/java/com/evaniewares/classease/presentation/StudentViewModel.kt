@@ -1,6 +1,7 @@
 package com.evaniewares.classease.presentation
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.evaniewares.classease.ROOM_DATABASE
@@ -10,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,11 +19,23 @@ import javax.inject.Inject
 class StudentViewModel @Inject constructor(
     private val repository: ClassEaseRepository
 ) : ViewModel() {
+    private val _studentState = MutableStateFlow(StudentState())
     private val _studentList = MutableStateFlow<List<StudentEntity>>(emptyList())
     val studentList: StateFlow<List<StudentEntity>> = _studentList.asStateFlow()
+    val studentState: StateFlow<StudentState> = _studentState.asStateFlow()
 
     init {
         getStudentsSortByScore()
+    }
+
+    fun getStudentById(studentId: Long) {
+        viewModelScope.launch {
+            _studentState.update {
+                it.copy(
+                    scoringStudent = repository.getStudentById(studentId)
+                )
+            }
+        }
     }
 
     fun getStudentsSortByScore() {
@@ -85,4 +99,8 @@ class StudentViewModel @Inject constructor(
             }
         }
     }
+
+    data class StudentState(
+        val scoringStudent: StudentEntity? = null
+    )
 }

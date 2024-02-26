@@ -37,7 +37,10 @@ fun NavGraph(
             ProgressScreen(navController = navController)
         }
         composable(Screen.Scoring.route){
-            ScoringScreen(navController = navController)
+            ScoringScreen(
+                navController = navController,
+                studentViewModel = studentViewModel
+            )
         }
     }
 }

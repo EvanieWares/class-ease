@@ -2,6 +2,7 @@ package com.evaniewares.classease.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.evaniewares.classease.domain.model.SubjectType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +21,7 @@ class ScoringViewModel : ViewModel() {
         }
     }
 
-    fun onIdChange(score: String, studentName: (Boolean, String) -> Unit) {
+    fun onIdChange(score: String) {
         _scoreState.update {
             it.copy(
                 score = score
@@ -28,8 +29,18 @@ class ScoringViewModel : ViewModel() {
         }
     }
 
+    fun onSave() {
+        _scoreState.update {
+            it.copy(
+                score = "",
+                studentId = ""
+            )
+        }
+    }
+
     data class ScoreState(
         val studentId: String = "",
-        val score: String = ""
+        val score: String = "",
+        val subject: SubjectType = SubjectType.ENGLISH
     )
 }
