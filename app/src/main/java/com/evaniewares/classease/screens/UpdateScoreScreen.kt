@@ -9,6 +9,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,6 +34,7 @@ import com.evaniewares.classease.domain.model.SubjectType
 import com.evaniewares.classease.domain.model.toastMsg
 import com.evaniewares.classease.presentation.ScoringViewModel
 import com.evaniewares.classease.presentation.StudentViewModel
+import java.util.Locale
 
 /**
  * Screen that enables users to update student scores.
@@ -77,7 +82,16 @@ fun ScoringScreen(
                         verticalArrangement = Arrangement.spacedBy(15.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        // Display the subject drop down list for users to select from
+                        LearningAreas(
+                            state = scoreState,
+                            scoringViewModel = scoringViewModel
+                        )
+
+                        // Display the name of student with the entered ID
                         Text(text = studentToUpdate?.studentName ?: "")
+
+                        // Display the score updating form
                         ScoringTextField(value = scoreState.studentId,
                             placeHolder = "ID",
                             onValueChange = { studentId ->
@@ -133,6 +147,112 @@ fun ScoringScreen(
 }
 
 /**
+ * Displays a [ExposedDropdownMenuBox] with a list of subject for user to select from.
+ *
+ * This is an alternative to using radio buttons and is implemented in this app
+ * to save space on user's screen.
+ *
+ * @param state the [ScoringViewModel.ScoreState] to manage the state of the [ScoringScreen].
+ * @param scoringViewModel the [ScoringViewModel] instance to help data survive recompositions.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LearningAreas(
+    state: ScoringViewModel.ScoreState,
+    scoringViewModel: ScoringViewModel
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ExposedDropdownMenuBox(
+            expanded = state.isLearningAreaExpanded,
+            onExpandedChange = { isExpanded ->
+                scoringViewModel.onExpandStateChange(isExpanded)
+            }
+        ) {
+            TextField(
+                value = state.subject.name.lowercase().replaceFirstChar {
+                    it.titlecase(
+                        Locale.getDefault()
+                    )
+                },
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(
+                        expanded = state.isLearningAreaExpanded
+                    )
+                },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = state.isLearningAreaExpanded,
+                onDismissRequest = {
+                    scoringViewModel.onExpandStateChange(false)
+                }
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "English")
+                        }, onClick = {
+                            scoringViewModel.onSubjectChange(SubjectType.ENGLISH)
+                            scoringViewModel.onExpandStateChange(false)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Chichewa")
+                        }, onClick = {
+                            scoringViewModel.onSubjectChange(SubjectType.CHICHEWA)
+                            scoringViewModel.onExpandStateChange(false)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Mathematics")
+                        }, onClick = {
+                            scoringViewModel.onSubjectChange(SubjectType.MATHEMATICS)
+                            scoringViewModel.onExpandStateChange(false)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Social & BK/RE")
+                        }, onClick = {
+                            scoringViewModel.onSubjectChange(SubjectType.SOCIAL)
+                            scoringViewModel.onExpandStateChange(false)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Primary Science")
+                        }, onClick = {
+                            scoringViewModel.onSubjectChange(SubjectType.SCIENCE)
+                            scoringViewModel.onExpandStateChange(false)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = "Arts & Life Skills")
+                        }, onClick = {
+                            scoringViewModel.onSubjectChange(SubjectType.ARTS)
+                            scoringViewModel.onExpandStateChange(false)
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * Customized [TextField] to simplify it's usage in the program
  *
  * @param value the input text to be shown in the text field.
@@ -172,10 +292,7 @@ private fun isValidInputs(
     score: String,
     student: StudentEntity? = null
 ): Boolean {
-    if (student == null) {
-        return false
-    }
-    if (studentId.isDigitsOnly() && score.isDigitsOnly()) {
+    if (student != null && studentId.isDigitsOnly() && score.isDigitsOnly()) {
         if (student.studentId == studentId.toLong()) {
             return true
         }
@@ -197,7 +314,7 @@ private fun updatedStudent(
         SubjectType.ARTS -> student.copy(arts = score)
         SubjectType.CHICHEWA -> student.copy(chichewa = score)
         SubjectType.ENGLISH -> student.copy(english = score)
-        SubjectType.MATHS -> student.copy(maths = score)
+        SubjectType.MATHEMATICS -> student.copy(maths = score)
         SubjectType.SCIENCE -> student.copy(science = score)
         SubjectType.SOCIAL -> student.copy(social = score)
     }

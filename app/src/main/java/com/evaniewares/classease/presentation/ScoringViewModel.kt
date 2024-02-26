@@ -1,13 +1,11 @@
 package com.evaniewares.classease.presentation
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.evaniewares.classease.domain.model.SubjectType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class ScoringViewModel : ViewModel() {
     private val _scoreState = MutableStateFlow(ScoreState())
@@ -29,11 +27,18 @@ class ScoringViewModel : ViewModel() {
         }
     }
 
-    fun onSave() {
+    fun onExpandStateChange(expanded: Boolean){
         _scoreState.update {
             it.copy(
-                score = "",
-                studentId = ""
+                isLearningAreaExpanded = expanded
+            )
+        }
+    }
+
+    fun onSubjectChange(subject: SubjectType){
+        _scoreState.update {
+            it.copy(
+                subject = subject
             )
         }
     }
@@ -41,6 +46,7 @@ class ScoringViewModel : ViewModel() {
     data class ScoreState(
         val studentId: String = "",
         val score: String = "",
+        val isLearningAreaExpanded: Boolean = false,
         val subject: SubjectType = SubjectType.ENGLISH
     )
 }
