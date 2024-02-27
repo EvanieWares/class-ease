@@ -7,11 +7,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.evaniewares.classease.domain.model.CustomTopBar
 
 @Composable
-fun ProgressScreen(navController: NavHostController) {
+fun ProgressScreen(
+    navController: NavHostController
+) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
@@ -26,4 +30,10 @@ fun ProgressScreen(navController: NavHostController) {
             modifier = Modifier.padding(paddingValues)
         ) {}
     }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun ProgressPreview(){
+    ProgressScreen(navController = rememberNavController())
 }
