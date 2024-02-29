@@ -48,10 +48,10 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.evaniewares.classease.domain.model.CustomTopBar
-import com.evaniewares.classease.domain.model.GenderType
+import com.evaniewares.classease.utils.CustomTopBar
+import com.evaniewares.classease.utils.GenderType
 import com.evaniewares.classease.domain.model.StudentEntity
-import com.evaniewares.classease.domain.model.toastMsg
+import com.evaniewares.classease.utils.toastMsg
 import com.evaniewares.classease.presentation.EditStudentViewModel
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.ui.theme.DangerColor
@@ -291,6 +291,7 @@ private fun StudentHeader() {
             )
             Text(
                 text = "STUDENT NAME",
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(2.dp)
@@ -298,6 +299,7 @@ private fun StudentHeader() {
             )
             Text(
                 text = "SEX",
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .padding(2.dp)

@@ -28,10 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.evaniewares.classease.domain.model.CustomTopBar
+import com.evaniewares.classease.utils.CustomTopBar
 import com.evaniewares.classease.domain.model.StudentEntity
-import com.evaniewares.classease.domain.model.SubjectType
-import com.evaniewares.classease.domain.model.toastMsg
+import com.evaniewares.classease.utils.SubjectType
+import com.evaniewares.classease.utils.toastMsg
 import com.evaniewares.classease.presentation.ScoringViewModel
 import com.evaniewares.classease.presentation.StudentViewModel
 import java.util.Locale

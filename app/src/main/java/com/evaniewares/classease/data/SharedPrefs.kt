@@ -2,7 +2,7 @@ package com.evaniewares.classease.data
 
 import android.app.Activity
 import android.content.Context
-import com.evaniewares.classease.domain.model.StudentSortType
+import com.evaniewares.classease.utils.StudentSortType
 
 class SharedPrefs(activity: Activity) {
     private val sortTypeKey = "sort_type"

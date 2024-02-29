@@ -87,6 +87,9 @@ dependencies {
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
+    // Window size class
+    implementation("androidx.compose.material3:material3-window-size-class")
+
     //
 
     testImplementation("junit:junit:4.13.2")

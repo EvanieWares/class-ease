@@ -1,4 +1,4 @@
-package com.evaniewares.classease.domain.model
+package com.evaniewares.classease.utils
 
 import android.content.Context
 import android.widget.Toast
@@ -25,8 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
+import com.evaniewares.classease.domain.model.StudentEntity
 
 @Composable
 fun CustomTopBar(
@@ -75,4 +74,15 @@ fun CustomTopBar(
 
 fun toastMsg(context: Context, msg: String) {
     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+}
+
+fun getTotalScore(student: StudentEntity): Int {
+    return (
+            student.arts +
+            student.chichewa +
+            student.english +
+            student.maths +
+            student.science +
+            student.social
+            )
 }

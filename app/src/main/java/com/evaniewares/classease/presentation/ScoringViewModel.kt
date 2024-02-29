@@ -1,7 +1,7 @@
 package com.evaniewares.classease.presentation
 
 import androidx.lifecycle.ViewModel
-import com.evaniewares.classease.domain.model.SubjectType
+import com.evaniewares.classease.utils.SubjectType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

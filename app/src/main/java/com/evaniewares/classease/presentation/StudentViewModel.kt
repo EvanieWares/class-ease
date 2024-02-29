@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.evaniewares.classease.ROOM_DATABASE
 import com.evaniewares.classease.data.repository.ClassEaseRepository
 import com.evaniewares.classease.domain.model.StudentEntity
+import com.evaniewares.classease.utils.StudentSortType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -100,7 +101,16 @@ class StudentViewModel @Inject constructor(
         }
     }
 
+    fun onSortTypeChange(sortType: StudentSortType){
+        _studentState.update {
+            it.copy(
+                progressSortType = sortType
+            )
+        }
+    }
+
     data class StudentState(
-        val scoringStudent: StudentEntity? = null
+        val scoringStudent: StudentEntity? = null,
+        val progressSortType: StudentSortType = StudentSortType.SCORE
     )
 }

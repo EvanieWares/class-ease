@@ -1,5 +1,6 @@
 package com.evaniewares.classease.navigation
 
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -15,7 +16,8 @@ import com.evaniewares.classease.screens.StudentScreen
 @Composable
 fun NavGraph(
     studentViewModel: StudentViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    windowSize: WindowWidthSizeClass
 ) {
     NavHost(navController = navController, startDestination = Screen.Home.route) {
         composable(Screen.Home.route) {
@@ -34,7 +36,11 @@ fun NavGraph(
             SettingScreen(navController = navController)
         }
         composable(Screen.Progress.route){
-            ProgressScreen(navController = navController)
+            ProgressScreen(
+                navController = navController,
+                windowSize = windowSize,
+                studentViewModel = studentViewModel
+            )
         }
         composable(Screen.Scoring.route){
             ScoringScreen(

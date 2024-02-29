@@ -7,7 +7,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.evaniewares.classease.domain.model.CustomTopBar
+import com.evaniewares.classease.utils.CustomTopBar
 
 @Composable
 fun AccountScreen(navController: NavHostController) {
