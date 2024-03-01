@@ -19,10 +19,10 @@ class ScoringViewModel : ViewModel() {
         }
     }
 
-    fun onIdChange(score: String) {
+    fun onIdChange(studentId: String) {
         _scoreState.update {
             it.copy(
-                studentId = score
+                studentId = studentId
             )
         }
     }

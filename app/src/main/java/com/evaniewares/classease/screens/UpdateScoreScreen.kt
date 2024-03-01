@@ -18,15 +18,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
@@ -64,7 +59,7 @@ fun ScoringScreen(
     val scoreState = scoringViewModel.scoreState.collectAsStateWithLifecycle().value
     val studentState = studentViewModel.studentState.collectAsStateWithLifecycle().value
     val studentToUpdate = studentState.scoringStudent
-    var currentStudentName by remember {
+    /*var currentStudentName by remember {
         mutableStateOf("")
     }
 
@@ -76,7 +71,7 @@ fun ScoringScreen(
         } else {
             ""
         }
-    }
+    }*/
 
     Scaffold(
         modifier = Modifier
@@ -96,7 +91,7 @@ fun ScoringScreen(
             ) {
                 item {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(15.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         // Display the subject drop down list for users to select from
@@ -106,23 +101,30 @@ fun ScoringScreen(
                         )
 
                         // Display the name of student with the entered ID
-                        Text(text = currentStudentName)
+                        /*Text(
+                            text = studentToUpdate?.studentName ?: "",
+                            style = MaterialTheme.typography.labelSmall
+                        )*/
 
                         // Display the score updating form
-                        ScoringTextField(value = scoreState.studentId,
-                            placeHolder = "ID",
+                        ScoringTextField(
+                            value = scoreState.studentId,
                             onValueChange = { studentId ->
                                 scoringViewModel.onIdChange(studentId)
-                                if (scoreState.studentId.isNotBlank() && scoreState.studentId.isDigitsOnly()) {
-                                    studentViewModel.getStudentById(studentId = studentId.toLong())
+                                if (studentId.isNumber()) {
+                                    studentViewModel.getStudentById(studentId.toLong())
+                                } else {
+                                    studentViewModel.getStudentById(0)
                                 }
-                            }
+                            },
+                            label = studentToUpdate?.studentName ?: "ID"
                         )
-                        ScoringTextField(value = scoreState.score,
-                            placeHolder = "SCORE",
+                        ScoringTextField(
+                            value = scoreState.score,
                             onValueChange = { score ->
                                 scoringViewModel.onScoreChange(score)
-                            }
+                            },
+                            label = "SCORE"
                         )
                         Button(
                             onClick = {
@@ -273,15 +275,15 @@ private fun LearningAreas(
  * Customized [TextField] to simplify it's usage in the program
  *
  * @param value the input text to be shown in the text field.
- * @param placeHolder the text to be displayed when the input text is empty.
+ * @param label the text to be displayed inside the [TextField] container.
  * @param onValueChange the callback that is triggered when the input service updates the text. An
  * updated text comes as a parameter of the callback.
  */
 @Composable
 private fun ScoringTextField(
     value: String,
-    placeHolder: String,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    label: String
 ) {
     TextField(
         value = value,
@@ -290,11 +292,10 @@ private fun ScoringTextField(
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
         ),
-        placeholder = {
-            Text(text = placeHolder)
-        },
         shape = RoundedCornerShape(5.dp),
-        textStyle = TextStyle.Default
+        label = {
+            Text(text = label)
+        }
     )
 }
 
@@ -309,12 +310,22 @@ private fun isValidInputs(
     score: String,
     student: StudentEntity? = null
 ): Boolean {
+    if (studentId.isBlank() || score.isBlank()) {
+        return false
+    }
     if (student != null && studentId.isDigitsOnly() && score.isDigitsOnly()) {
         if (student.studentId == studentId.toLong()) {
             return true
         }
     }
     return false
+}
+
+private fun CharSequence.isNumber(): Boolean {
+    if (this.isBlank()) {
+        return false
+    }
+    return this.isDigitsOnly()
 }
 
 /**

@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
@@ -38,7 +37,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -212,101 +213,106 @@ fun StudentScreen(
 private fun StudentRow(
     student: StudentEntity,
     onEditButtonClick: (StudentEntity) -> Unit,
-    onDeleteButtonClick: (StudentEntity) -> Unit
+    onDeleteButtonClick: (StudentEntity) -> Unit,
+    textStyle: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp, 2.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
+        Text(
+            text = "${student.studentId}.",
+            textAlign = TextAlign.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp, 2.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(2.dp)
+                .weight(1f),
+            style = textStyle
+        )
+        Text(
+            text = student.studentName,
+            modifier = Modifier
+                .padding(2.dp)
+                .weight(8f),
+            style = textStyle
+        )
+        Text(
+            text = student.gender,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(2.dp)
+                .weight(2f),
+            style = textStyle
+        )
+        IconButton(
+            onClick = { onEditButtonClick(student) },
+            modifier = Modifier
+                .size(18.dp)
+                .weight(1f)
         ) {
-            Text(
-                text = "${student.studentId}.",
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(2.dp)
-                    .weight(1f)
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Edit ${student.studentName}"
             )
-            Text(
-                text = student.studentName,
-                modifier = Modifier
-                    .padding(2.dp)
-                    .weight(8f)
+        }
+        IconButton(
+            onClick = { onDeleteButtonClick(student) },
+            modifier = Modifier
+                .size(18.dp)
+                .weight(1f)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete ${student.studentName}",
+                tint = DangerColor
             )
-            Text(
-                text = student.gender,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(2.dp)
-                    .weight(2f)
-            )
-            IconButton(
-                onClick = { onEditButtonClick(student) },
-                modifier = Modifier
-                    .size(18.dp)
-                    .weight(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit ${student.studentName}"
-                )
-            }
-            IconButton(
-                onClick = { onDeleteButtonClick(student) },
-                modifier = Modifier
-                    .size(18.dp)
-                    .weight(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete ${student.studentName}",
-                    tint = DangerColor
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun StudentHeader() {
-    Card(
-        modifier = Modifier.fillMaxWidth()
+private fun StudentHeader(
+    textStyle: TextStyle = MaterialTheme.typography.titleSmall,
+    primaryColor: Color = MaterialTheme.colorScheme.primary
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp, 5.dp)
     ) {
-        Row(
+        Text(
+            text = "ID",
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp, 5.dp)
-        ) {
-            Text(
-                text = "ID",
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(2.dp)
-                    .weight(1f)
-            )
-            Text(
-                text = "STUDENT NAME",
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(2.dp)
-                    .weight(8f)
-            )
-            Text(
-                text = "SEX",
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .padding(2.dp)
-                    .weight(2f)
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.weight(1f))
-        }
+                .padding(2.dp)
+                .weight(1f),
+            style = textStyle,
+            color = primaryColor
+        )
+        Text(
+            text = "STUDENT NAME",
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(2.dp)
+                .weight(8f),
+            style = textStyle,
+            color = primaryColor
+        )
+        Text(
+            text = "SEX",
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(2.dp)
+                .weight(2f),
+            style = textStyle,
+            color = primaryColor
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
