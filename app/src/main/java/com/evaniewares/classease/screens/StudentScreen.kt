@@ -1,7 +1,6 @@
 package com.evaniewares.classease.screens
 
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,9 +23,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -36,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -48,13 +49,13 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.evaniewares.classease.utils.CustomTopBar
-import com.evaniewares.classease.utils.GenderType
 import com.evaniewares.classease.domain.model.StudentEntity
-import com.evaniewares.classease.utils.toastMsg
 import com.evaniewares.classease.presentation.EditStudentViewModel
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.ui.theme.DangerColor
+import com.evaniewares.classease.utils.CustomTopBar
+import com.evaniewares.classease.utils.GenderType
+import com.evaniewares.classease.utils.toastMsg
 
 @Composable
 fun StudentScreen(
@@ -74,10 +75,10 @@ fun StudentScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-                 CustomTopBar(
-                     activity = "Students",
-                     onBackClick = { navController.popBackStack() }
-                 )
+            CustomTopBar(
+                activity = "Students",
+                onBackClick = { navController.popBackStack() }
+            )
         },
         bottomBar = {
             ElevatedButton(
@@ -195,7 +196,7 @@ fun StudentScreen(
                                         editStudentViewModel.onAction(EditStudentViewModel.UserAction.OnSaveStudent)
                                         toastMsg(context, "Saved!")
                                     } else {
-                                        toastMsg(context, "Unable to save. Try again!",)
+                                        toastMsg(context, "Unable to save. Try again!")
                                     }
                                 }
                             }
@@ -214,8 +215,7 @@ private fun StudentRow(
     onDeleteButtonClick: (StudentEntity) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        border = BorderStroke(1.dp, Color.Black)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -273,8 +273,7 @@ private fun StudentRow(
 @Composable
 private fun StudentHeader() {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        border = BorderStroke(1.dp, Color.Black)
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -357,92 +356,103 @@ private fun EditStudentDialog(
             usePlatformDefaultWidth = false
         )
     ) {
-        Card {
+        Surface(
+            modifier = Modifier
+                .padding(28.dp)
+                .widthIn(min = 280.dp, max = 560.dp),
+            shape = RoundedCornerShape(28.dp)
+        ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = "Enter student ID, name and select gender")
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.Center
+                Text(
+                    text = if (state.isEditing) "Edit student" else "Add student",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Row(
+                    modifier = Modifier.height(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (state.isEditing) {
-                        EditStudentTextField(
-                            value = state.studentId,
-                            placeHolder = "STUDENT ID",
-                            onValueChange = onIdChanged,
-                            keyboardType = KeyboardType.Decimal,
-                            enabled = false
-                        )
-                    } else {
-                        EditStudentTextField(
-                            value = state.studentId,
-                            placeHolder = "STUDENT ID",
-                            onValueChange = onIdChanged,
-                            keyboardType = KeyboardType.Decimal
-                        )
-                    }
+                    Divider(modifier = Modifier.height(1.dp))
+                }
+                if (state.isEditing) {
                     EditStudentTextField(
-                        value = state.studentName,
-                        placeHolder = "STUDENT NAME",
-                        onValueChange = onNameChanged
+                        value = state.studentId,
+                        placeHolder = "STUDENT ID",
+                        onValueChange = onIdChanged,
+                        keyboardType = KeyboardType.Decimal,
+                        enabled = false
                     )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        GenderSelection(
-                            text = "MALE",
-                            selected = state.gender == GenderType.M.name,
-                            onClick = { onGenderChanged("M") }
-                        )
-                        GenderSelection(
-                            text = "FEMALE",
-                            selected = state.gender == GenderType.F.name,
-                            onClick = { onGenderChanged("F") }
-                        )
-                        GenderSelection(
-                            text = "OTHER",
-                            selected = state.gender == GenderType.O.name,
-                            onClick = { onGenderChanged("O") }
-                        )
-                    }
-                    Button(
-                        onClick = {
-                            if (state.selectedStudent != null) {
-                                onSaveStudent(
-                                    state.selectedStudent.copy(
-                                        studentName = state.studentName.trim(),
-                                        gender = state.gender.trim()
-                                    )
+                } else {
+                    EditStudentTextField(
+                        value = state.studentId,
+                        placeHolder = "STUDENT ID",
+                        onValueChange = onIdChanged,
+                        keyboardType = KeyboardType.Decimal
+                    )
+                }
+                EditStudentTextField(
+                    value = state.studentName,
+                    placeHolder = "STUDENT NAME",
+                    onValueChange = onNameChanged
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    GenderSelection(
+                        text = "MALE",
+                        selected = state.gender == GenderType.M.name,
+                        onClick = { onGenderChanged("M") }
+                    )
+                    GenderSelection(
+                        text = "FEMALE",
+                        selected = state.gender == GenderType.F.name,
+                        onClick = { onGenderChanged("F") }
+                    )
+                    GenderSelection(
+                        text = "OTHER",
+                        selected = state.gender == GenderType.O.name,
+                        onClick = { onGenderChanged("O") }
+                    )
+                }
+                Spacer(modifier = Modifier.padding(24.dp))
+                Button(
+                    onClick = {
+                        if (state.selectedStudent != null) {
+                            onSaveStudent(
+                                state.selectedStudent.copy(
+                                    studentName = state.studentName.trim(),
+                                    gender = state.gender.trim()
                                 )
-                            } else {
-                                onSaveStudent(
-                                    StudentEntity(
-                                        studentId = state.studentId.toLong(),
-                                        studentName = state.studentName.trim(),
-                                        gender = state.gender.trim()
-                                    )
+                            )
+                        } else {
+                            onSaveStudent(
+                                StudentEntity(
+                                    studentId = state.studentId.toLong(),
+                                    studentName = state.studentName.trim(),
+                                    gender = state.gender.trim()
                                 )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 30.dp, end = 30.dp),
-                        enabled = validateInputs(
-                            name = state.studentName,
-                            gender = state.gender,
-                            studentId = state.studentId
-                        )
-                    ) {
-                        Text(text = "Save")
-                    }
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 30.dp, end = 30.dp),
+                    enabled = validateInputs(
+                        name = state.studentName,
+                        gender = state.gender,
+                        studentId = state.studentId
+                    )
+                ) {
+                    Text(
+                        text = "Save",
+                        style = MaterialTheme.typography.labelMedium
+                    )
                 }
             }
         }

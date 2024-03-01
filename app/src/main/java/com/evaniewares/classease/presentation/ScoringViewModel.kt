@@ -22,7 +22,7 @@ class ScoringViewModel : ViewModel() {
     fun onIdChange(score: String) {
         _scoreState.update {
             it.copy(
-                score = score
+                studentId = score
             )
         }
     }

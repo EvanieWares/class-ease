@@ -18,7 +18,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,12 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.evaniewares.classease.utils.CustomTopBar
 import com.evaniewares.classease.domain.model.StudentEntity
-import com.evaniewares.classease.utils.SubjectType
-import com.evaniewares.classease.utils.toastMsg
 import com.evaniewares.classease.presentation.ScoringViewModel
 import com.evaniewares.classease.presentation.StudentViewModel
+import com.evaniewares.classease.utils.CustomTopBar
+import com.evaniewares.classease.utils.SubjectType
+import com.evaniewares.classease.utils.toastMsg
 import java.util.Locale
 
 /**
@@ -60,6 +64,19 @@ fun ScoringScreen(
     val scoreState = scoringViewModel.scoreState.collectAsStateWithLifecycle().value
     val studentState = studentViewModel.studentState.collectAsStateWithLifecycle().value
     val studentToUpdate = studentState.scoringStudent
+    var currentStudentName by remember {
+        mutableStateOf("")
+    }
+
+    LaunchedEffect(scoreState.studentId) {
+        val studentId = scoreState.studentId
+        currentStudentName = if (studentId.isNotBlank() && studentId.isDigitsOnly()) {
+            studentViewModel.getStudentById(studentId.toLong())
+            studentToUpdate?.studentName ?: ""
+        } else {
+            ""
+        }
+    }
 
     Scaffold(
         modifier = Modifier
@@ -89,14 +106,14 @@ fun ScoringScreen(
                         )
 
                         // Display the name of student with the entered ID
-                        Text(text = studentToUpdate?.studentName ?: "")
+                        Text(text = currentStudentName)
 
                         // Display the score updating form
                         ScoringTextField(value = scoreState.studentId,
                             placeHolder = "ID",
                             onValueChange = { studentId ->
                                 scoringViewModel.onIdChange(studentId)
-                                if (scoreState.studentId.isDigitsOnly()) {
+                                if (scoreState.studentId.isNotBlank() && scoreState.studentId.isDigitsOnly()) {
                                     studentViewModel.getStudentById(studentId = studentId.toLong())
                                 }
                             }
