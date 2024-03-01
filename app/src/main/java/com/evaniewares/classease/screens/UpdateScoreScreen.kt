@@ -100,12 +100,6 @@ fun ScoringScreen(
                             scoringViewModel = scoringViewModel
                         )
 
-                        // Display the name of student with the entered ID
-                        /*Text(
-                            text = studentToUpdate?.studentName ?: "",
-                            style = MaterialTheme.typography.labelSmall
-                        )*/
-
                         // Display the score updating form
                         ScoringTextField(
                             value = scoreState.studentId,
