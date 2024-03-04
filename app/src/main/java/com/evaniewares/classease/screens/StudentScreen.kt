@@ -24,6 +24,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -381,7 +382,10 @@ private fun EditStudentDialog(
                     modifier = Modifier.height(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Divider(modifier = Modifier.height(1.dp))
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = Color.Black
+                    )
                 }
                 if (state.isEditing) {
                     EditStudentTextField(

@@ -1,6 +1,7 @@
 package com.evaniewares.classease.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,7 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -30,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -399,7 +401,10 @@ private fun StudentItemHeader(
             }
         }
     }
-    Divider()
+    HorizontalDivider(
+        thickness = 1.dp,
+        color = Color.Black
+    )
 }
 
 /**
@@ -603,7 +608,10 @@ private fun StudentItemExpandedHeader(
             fontWeight = FontWeight.Bold
         )
     }
-    Divider()
+    HorizontalDivider(
+        thickness = 1.dp,
+        color = Color.Black
+    )
 }
 
 /**
@@ -733,7 +741,10 @@ private fun SortTypeDialog(
                     modifier = Modifier.height(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Divider(modifier = Modifier.height(1.dp))
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = Color.Black
+                    )
                 }
                 SortSelection(
                     text = "Grades",
@@ -764,7 +775,11 @@ private fun SortSelection(
 ) {
     Box {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .clickable {
+                    onClick()
+                }
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 Text(
@@ -774,7 +789,7 @@ private fun SortSelection(
             }
             RadioButton(
                 selected = selected,
-                onClick = { onClick() }
+                onClick = onClick
             )
         }
     }
@@ -788,10 +803,7 @@ private fun SortSelection(
 @Composable
 fun ProgressPhonePreview() {
     ClassEaseTheme {
-        ProgressScreen(
-            navController = rememberNavController(),
-            windowSize = WindowWidthSizeClass.Compact
-        )
+
     }
 }
 
@@ -802,10 +814,7 @@ fun ProgressPhonePreview() {
 @Composable
 fun ProgressMediumPreview() {
     ClassEaseTheme {
-        ProgressScreen(
-            navController = rememberNavController(),
-            windowSize = WindowWidthSizeClass.Medium
-        )
+
     }
 }
 
@@ -816,12 +825,10 @@ fun ProgressMediumPreview() {
 @Composable
 fun ProgressExpandedPreview() {
     ClassEaseTheme {
-        ProgressScreen(
-            navController = rememberNavController(),
-            windowSize = WindowWidthSizeClass.Expanded
-        )
+
     }
-}*/
+}
+*/
 
 /*val studentList = listOf(
     StudentEntity(2, "Chisomo Psyelera", "M"),

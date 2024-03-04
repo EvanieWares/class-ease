@@ -18,17 +18,22 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.evaniewares.classease.domain.model.StudentEntity
-import com.evaniewares.classease.presentation.ScoringViewModel
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.utils.CustomTopBar
 import com.evaniewares.classease.utils.SubjectType
@@ -53,25 +58,29 @@ fun ScoringScreen(
     studentViewModel: StudentViewModel
 ) {
     val context = LocalContext.current
-    val scoringViewModel = remember {
-        ScoringViewModel()
+    val studentToUpdate = remember {
+        mutableStateOf<StudentEntity?>(null)
     }
-    val scoreState = scoringViewModel.scoreState.collectAsStateWithLifecycle().value
-    val studentState = studentViewModel.studentState.collectAsStateWithLifecycle().value
-    val studentToUpdate = studentState.scoringStudent
-    /*var currentStudentName by remember {
+    var studentId by rememberSaveable {
         mutableStateOf("")
     }
+    var score by rememberSaveable {
+        mutableStateOf("")
+    }
+    var subject by rememberSaveable {
+        mutableStateOf(SubjectType.ENGLISH)
+    }
+    var newEntry by rememberSaveable {
+        mutableStateOf(true)
+    }
 
-    LaunchedEffect(scoreState.studentId) {
-        val studentId = scoreState.studentId
-        currentStudentName = if (studentId.isNotBlank() && studentId.isDigitsOnly()) {
-            studentViewModel.getStudentById(studentId.toLong())
-            studentToUpdate?.studentName ?: ""
+    LaunchedEffect(studentId) {
+        if (studentId.isNumber()) {
+            studentToUpdate.value = studentViewModel.getStudentById(studentId.toLong())
         } else {
-            ""
+            studentToUpdate.value = null
         }
-    }*/
+    }
 
     Scaffold(
         modifier = Modifier
@@ -96,42 +105,52 @@ fun ScoringScreen(
                     ) {
                         // Display the subject drop down list for users to select from
                         LearningAreas(
-                            state = scoreState,
-                            scoringViewModel = scoringViewModel
+                            subject = subject,
+                            onSubjectChange = { subjectType ->
+                                subject = subjectType
+                            }
                         )
 
                         // Display the score updating form
                         ScoringTextField(
-                            value = scoreState.studentId,
-                            onValueChange = { studentId ->
-                                scoringViewModel.onIdChange(studentId)
-                                if (studentId.isNumber()) {
-                                    studentViewModel.getStudentById(studentId.toLong())
-                                } else {
-                                    studentViewModel.getStudentById(0)
-                                }
+                            value = studentId,
+                            onValueChange = { value ->
+                                studentId = value
+                                newEntry = false
                             },
-                            label = studentToUpdate?.studentName ?: "ID"
+                            label = studentToUpdate.value?.studentName ?: "ID",
+                            onFocusChanged = {focusState ->
+                                if (focusState.hasFocus && newEntry){
+                                    studentId = ""
+                                }
+                            }
                         )
                         ScoringTextField(
-                            value = scoreState.score,
-                            onValueChange = { score ->
-                                scoringViewModel.onScoreChange(score)
+                            value = score,
+                            onValueChange = { value ->
+                                score = value
+                                newEntry = false
                             },
-                            label = "SCORE"
+                            label = "SCORE",
+                            onFocusChanged = {focusState ->
+                                if (focusState.hasFocus && newEntry){
+                                    score = ""
+                                }
+                            }
                         )
                         Button(
                             onClick = {
-                                studentToUpdate?.let { oldStudent ->
+                                studentToUpdate.value?.let { oldStudent ->
                                     val newStudent = updatedStudent(
                                         student = oldStudent,
-                                        score = scoreState.score.toInt(),
-                                        subject = scoreState.subject
+                                        score = score.toInt(),
+                                        subject = subject
                                     )
                                     studentViewModel.updateStudent(newStudent) { success ->
                                         if (success) {
                                             toastMsg(context, "Saved!")
-                                            scoringViewModel.onScoreChange("")
+                                            newEntry = true
+                                            score = ""
                                         } else {
                                             toastMsg(
                                                 context,
@@ -145,9 +164,9 @@ fun ScoringScreen(
                                 .fillMaxWidth()
                                 .padding(start = 30.dp, end = 30.dp),
                             enabled = isValidInputs(
-                                studentId = scoreState.studentId,
-                                score = scoreState.score,
-                                student = studentToUpdate
+                                studentId = studentId,
+                                score = score,
+                                student = studentToUpdate.value
                             )
                         ) {
                             Text(text = "Save")
@@ -165,15 +184,17 @@ fun ScoringScreen(
  * This is an alternative to using radio buttons and is implemented in this app
  * to save space on user's screen.
  *
- * @param state the [ScoringViewModel.ScoreState] to manage the state of the [ScoringScreen].
- * @param scoringViewModel the [ScoringViewModel] instance to help data survive recompositions.
+ * @param subject the [SubjectType] to update.
+ * @param onSubjectChange the callback function to update the selected subject.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LearningAreas(
-    state: ScoringViewModel.ScoreState,
-    scoringViewModel: ScoringViewModel
+    subject: SubjectType,
+    onSubjectChange: (SubjectType) -> Unit
 ) {
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -181,13 +202,13 @@ private fun LearningAreas(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ExposedDropdownMenuBox(
-            expanded = state.isLearningAreaExpanded,
-            onExpandedChange = { isExpanded ->
-                scoringViewModel.onExpandStateChange(isExpanded)
+            expanded = isExpanded,
+            onExpandedChange = {
+                isExpanded = it
             }
         ) {
             TextField(
-                value = state.subject.name.lowercase().replaceFirstChar {
+                value = subject.name.lowercase().replaceFirstChar {
                     it.titlecase(
                         Locale.getDefault()
                     )
@@ -196,16 +217,16 @@ private fun LearningAreas(
                 readOnly = true,
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(
-                        expanded = state.isLearningAreaExpanded
+                        expanded = isExpanded
                     )
                 },
                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
                 modifier = Modifier.menuAnchor()
             )
             ExposedDropdownMenu(
-                expanded = state.isLearningAreaExpanded,
+                expanded = isExpanded,
                 onDismissRequest = {
-                    scoringViewModel.onExpandStateChange(false)
+                    isExpanded = false
                 }
             ) {
                 Column(
@@ -215,48 +236,48 @@ private fun LearningAreas(
                         text = {
                             Text(text = "English")
                         }, onClick = {
-                            scoringViewModel.onSubjectChange(SubjectType.ENGLISH)
-                            scoringViewModel.onExpandStateChange(false)
+                            onSubjectChange(SubjectType.ENGLISH)
+                            isExpanded = false
                         }
                     )
                     DropdownMenuItem(
                         text = {
                             Text(text = "Chichewa")
                         }, onClick = {
-                            scoringViewModel.onSubjectChange(SubjectType.CHICHEWA)
-                            scoringViewModel.onExpandStateChange(false)
+                            onSubjectChange(SubjectType.CHICHEWA)
+                            isExpanded = false
                         }
                     )
                     DropdownMenuItem(
                         text = {
                             Text(text = "Mathematics")
                         }, onClick = {
-                            scoringViewModel.onSubjectChange(SubjectType.MATHEMATICS)
-                            scoringViewModel.onExpandStateChange(false)
+                            onSubjectChange(SubjectType.MATHEMATICS)
+                            isExpanded = false
                         }
                     )
                     DropdownMenuItem(
                         text = {
                             Text(text = "Social & BK/RE")
                         }, onClick = {
-                            scoringViewModel.onSubjectChange(SubjectType.SOCIAL)
-                            scoringViewModel.onExpandStateChange(false)
+                            onSubjectChange(SubjectType.SOCIAL)
+                            isExpanded = false
                         }
                     )
                     DropdownMenuItem(
                         text = {
                             Text(text = "Primary Science")
                         }, onClick = {
-                            scoringViewModel.onSubjectChange(SubjectType.SCIENCE)
-                            scoringViewModel.onExpandStateChange(false)
+                            onSubjectChange(SubjectType.SCIENCE)
+                            isExpanded = false
                         }
                     )
                     DropdownMenuItem(
                         text = {
                             Text(text = "Arts & Life Skills")
                         }, onClick = {
-                            scoringViewModel.onSubjectChange(SubjectType.ARTS)
-                            scoringViewModel.onExpandStateChange(false)
+                            onSubjectChange(SubjectType.ARTS)
+                            isExpanded = false
                         }
                     )
                 }
@@ -277,12 +298,17 @@ private fun LearningAreas(
 private fun ScoringTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String
+    label: String,
+    onFocusChanged: (FocusState) -> Unit
 ) {
     TextField(
         value = value,
         onValueChange = { onValueChange(it) },
-        modifier = Modifier.padding(10.dp),
+        modifier = Modifier
+            .padding(10.dp)
+            .onFocusChanged { focusState ->
+                onFocusChanged(focusState)
+            },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number
         ),

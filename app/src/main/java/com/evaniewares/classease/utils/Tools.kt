@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -54,7 +54,7 @@ fun CustomTopBar(
                         shape = CircleShape
                     ) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back Icon"
                         )
                     }
@@ -79,10 +79,10 @@ fun toastMsg(context: Context, msg: String) {
 fun getTotalScore(student: StudentEntity): Int {
     return (
             student.arts +
-            student.chichewa +
-            student.english +
-            student.maths +
-            student.science +
-            student.social
+                    student.chichewa +
+                    student.english +
+                    student.maths +
+                    student.science +
+                    student.social
             )
 }

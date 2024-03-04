@@ -1,7 +1,6 @@
 package com.evaniewares.classease.presentation
 
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.evaniewares.classease.ROOM_DATABASE
@@ -29,15 +28,22 @@ class StudentViewModel @Inject constructor(
         getStudentsSortByScore()
     }
 
-    fun getStudentById(studentId: Long) {
-        viewModelScope.launch {
-            _studentState.update {
-                it.copy(
-                    scoringStudent = repository.getStudentById(studentId)
-                )
+    suspend fun getStudentById(studentId: Long): StudentEntity? {
+        return repository.getStudentById(studentId)
+    }
+
+    /*
+        fun getStudentById(studentId: Long) {
+            viewModelScope.launch {
+                _studentState.update {
+                    it.copy(
+                        scoringStudent = repository.getStudentById(studentId)
+                    )
+                }
             }
         }
-    }
+    */
+
 
     fun getStudentsSortByScore() {
         viewModelScope.launch {
@@ -101,7 +107,7 @@ class StudentViewModel @Inject constructor(
         }
     }
 
-    fun onSortTypeChange(sortType: StudentSortType){
+    fun onSortTypeChange(sortType: StudentSortType) {
         _studentState.update {
             it.copy(
                 progressSortType = sortType
@@ -110,7 +116,6 @@ class StudentViewModel @Inject constructor(
     }
 
     data class StudentState(
-        val scoringStudent: StudentEntity? = null,
         val progressSortType: StudentSortType = StudentSortType.SCORE
     )
 }
