@@ -32,19 +32,6 @@ class StudentViewModel @Inject constructor(
         return repository.getStudentById(studentId)
     }
 
-    /*
-        fun getStudentById(studentId: Long) {
-            viewModelScope.launch {
-                _studentState.update {
-                    it.copy(
-                        scoringStudent = repository.getStudentById(studentId)
-                    )
-                }
-            }
-        }
-    */
-
-
     fun getStudentsSortByScore() {
         viewModelScope.launch {
             repository.getStudentsSortByScore().collect { sortedStudents ->
@@ -115,7 +102,116 @@ class StudentViewModel @Inject constructor(
         }
     }
 
+    fun onAction(userAction: UserAction) {
+        when (userAction) {
+            UserAction.AddButtonClicked -> {
+                _studentState.update {
+                    it.copy(
+                        selectedStudent = null,
+                        isAdding = true
+                    )
+                }
+            }
+
+            is UserAction.DeleteButtonClicked -> {
+                _studentState.update {
+                    it.copy(
+                        selectedStudent = userAction.studentEntity,
+                        isDeleting = true
+                    )
+                }
+            }
+
+            is UserAction.EditButtonClicked -> {
+                _studentState.update {
+                    it.copy(
+                        selectedStudent = userAction.studentEntity,
+                        isEditing = true,
+                        studentName = userAction.studentEntity.studentName,
+                        gender = userAction.studentEntity.gender,
+                        studentId = userAction.studentEntity.studentId.toString()
+                    )
+                }
+            }
+
+            UserAction.EditStudentDialogDismiss -> {
+                _studentState.update {
+                    it.copy(
+                        isEditing = false,
+                        isAdding = false,
+                        studentName = "",
+                        gender = "",
+                        studentId = "",
+                        selectedStudent = null
+                    )
+                }
+            }
+
+            UserAction.DeleteStudentDialogDismiss -> {
+                _studentState.update {
+                    it.copy(
+                        isDeleting = false,
+                        selectedStudent = null
+                    )
+                }
+            }
+
+            is UserAction.OnGenderChanged -> {
+                _studentState.update {
+                    it.copy(
+                        gender = userAction.gender
+                    )
+                }
+            }
+
+            is UserAction.OnIDChanged -> {
+                _studentState.update {
+                    it.copy(
+                        studentId = userAction.studentId
+                    )
+                }
+            }
+
+            is UserAction.OnNameChanged -> {
+                _studentState.update {
+                    it.copy(
+                        studentName = userAction.studentName
+                    )
+                }
+            }
+
+            is UserAction.OnSaveStudent -> {
+                _studentState.update {
+                    it.copy(
+                        studentName = "",
+                        gender = "",
+                        studentId = ""
+                    )
+                }
+            }
+        }
+    }
+
     data class StudentState(
-        val progressSortType: StudentSortType = StudentSortType.SCORE
+        val progressSortType: StudentSortType = StudentSortType.SCORE,
+        val isEditing: Boolean = false,
+        val isAdding: Boolean = false,
+        val isDeleting: Boolean = false,
+        val studentId: String = "",
+        val studentName: String = "",
+        val gender: String = "",
+        val selectedStudent: StudentEntity? = null
     )
+
+    sealed class UserAction {
+        data object AddButtonClicked : UserAction()
+        data object EditStudentDialogDismiss : UserAction()
+        data object DeleteStudentDialogDismiss : UserAction()
+        data class EditButtonClicked(val studentEntity: StudentEntity) : UserAction()
+        data class DeleteButtonClicked(val studentEntity: StudentEntity) : UserAction()
+        data class OnNameChanged(val studentName: String) : UserAction()
+        data class OnIDChanged(val studentId: String) : UserAction()
+        data class OnGenderChanged(val gender: String) : UserAction()
+        data object OnSaveStudent : UserAction()
+    }
 }

@@ -2,10 +2,7 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
-      <entry key="AndroidStudioProjects.ClassEase.app">
-        <State />
-      </entry>
-      <entry key="ClassEase App">
+      <entry key="app">
         <State />
       </entry>
     </value>

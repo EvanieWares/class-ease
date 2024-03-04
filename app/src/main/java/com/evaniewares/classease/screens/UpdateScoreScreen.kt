@@ -74,7 +74,7 @@ fun ScoringScreen(
         mutableStateOf(true)
     }
 
-    LaunchedEffect(studentId) {
+    LaunchedEffect(studentId, newEntry) {
         if (studentId.isNumber()) {
             studentToUpdate.value = studentViewModel.getStudentById(studentId.toLong())
         } else {
@@ -119,8 +119,8 @@ fun ScoringScreen(
                                 newEntry = false
                             },
                             label = studentToUpdate.value?.studentName ?: "ID",
-                            onFocusChanged = {focusState ->
-                                if (focusState.hasFocus && newEntry){
+                            onFocusChanged = { focusState ->
+                                if (focusState.hasFocus && newEntry) {
                                     studentId = ""
                                 }
                             }
@@ -132,8 +132,8 @@ fun ScoringScreen(
                                 newEntry = false
                             },
                             label = "SCORE",
-                            onFocusChanged = {focusState ->
-                                if (focusState.hasFocus && newEntry){
+                            onFocusChanged = { focusState ->
+                                if (focusState.hasFocus && newEntry) {
                                     score = ""
                                 }
                             }
@@ -146,7 +146,11 @@ fun ScoringScreen(
                                         score = score.toInt(),
                                         subject = subject
                                     )
-                                    studentViewModel.updateStudent(newStudent) { success ->
+                                    studentViewModel.updateStudent(
+                                        newStudent.copy(
+                                            gradeGroup = newStudent.calculateGradeGroup()
+                                        )
+                                    ) { success ->
                                         if (success) {
                                             toastMsg(context, "Saved!")
                                             newEntry = true
@@ -305,6 +309,7 @@ private fun ScoringTextField(
         value = value,
         onValueChange = { onValueChange(it) },
         modifier = Modifier
+            .fillMaxWidth()
             .padding(10.dp)
             .onFocusChanged { focusState ->
                 onFocusChanged(focusState)
@@ -315,7 +320,8 @@ private fun ScoringTextField(
         shape = RoundedCornerShape(5.dp),
         label = {
             Text(text = label)
-        }
+        },
+        maxLines = 1
     )
 }
 

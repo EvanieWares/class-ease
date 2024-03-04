@@ -747,7 +747,7 @@ private fun SortTypeDialog(
                     )
                 }
                 SortSelection(
-                    text = "Grades",
+                    text = "Grade",
                     selected = state.progressSortType == StudentSortType.GRADE,
                     onClick = onGradeSelect
                 )

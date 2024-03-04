@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "51a2f433713ea8865ef9a58fe49b954c",
+    "identityHash": "b6ae8955f5714a85a5fa7f19f45a9409",
     "entities": [
       {
         "tableName": "students",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`student_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `student_name` TEXT NOT NULL, `gender` TEXT NOT NULL, `arts` INTEGER NOT NULL, `chichewa` INTEGER NOT NULL, `english` INTEGER NOT NULL, `maths` INTEGER NOT NULL, `science` INTEGER NOT NULL, `social` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`student_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `student_name` TEXT NOT NULL, `gender` TEXT NOT NULL, `arts` INTEGER NOT NULL, `chichewa` INTEGER NOT NULL, `english` INTEGER NOT NULL, `maths` INTEGER NOT NULL, `science` INTEGER NOT NULL, `social` INTEGER NOT NULL, `grade_group` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "studentId",
@@ -61,6 +61,12 @@
             "columnName": "social",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "gradeGroup",
+            "columnName": "grade_group",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -69,14 +75,33 @@
             "student_id"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_students_student_name",
+            "unique": false,
+            "columnNames": [
+              "student_name"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_students_student_name` ON `${TABLE_NAME}` (`student_name`)"
+          },
+          {
+            "name": "index_students_grade_group",
+            "unique": false,
+            "columnNames": [
+              "grade_group"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_students_grade_group` ON `${TABLE_NAME}` (`grade_group`)"
+          }
+        ],
         "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '51a2f433713ea8865ef9a58fe49b954c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b6ae8955f5714a85a5fa7f19f45a9409')"
     ]
   }
 }

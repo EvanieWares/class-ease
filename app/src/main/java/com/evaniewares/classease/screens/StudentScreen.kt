@@ -3,9 +3,11 @@ package com.evaniewares.classease.screens
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,15 +16,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -35,7 +38,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,7 +54,6 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.evaniewares.classease.domain.model.StudentEntity
-import com.evaniewares.classease.presentation.EditStudentViewModel
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.ui.theme.DangerColor
 import com.evaniewares.classease.utils.CustomTopBar
@@ -66,11 +67,7 @@ fun StudentScreen(
 ) {
     studentViewModel.getStudentsSortById()
     val context = LocalContext.current
-    val editStudentViewModel = remember {
-        EditStudentViewModel()
-    }
-    val state = editStudentViewModel.editState.collectAsStateWithLifecycle().value
-
+    val studentState = studentViewModel.studentState.collectAsStateWithLifecycle().value
     val studentList =
         studentViewModel.studentList.collectAsStateWithLifecycle(initialValue = emptyList())
 
@@ -86,15 +83,18 @@ fun StudentScreen(
             ElevatedButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .defaultMinSize(minHeight = 80.dp),
                 onClick = {
-                    editStudentViewModel.onAction(EditStudentViewModel.UserAction.AddButtonClicked)
+                    studentViewModel.onAction(StudentViewModel.UserAction.AddButtonClicked)
                 },
                 shape = RoundedCornerShape(0.dp),
                 colors = ButtonDefaults.buttonColors(),
                 elevation = ButtonDefaults.buttonElevation(5.dp)
             ) {
-                Text(text = "Add")
+                Text(
+                    text = "Add",
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     ) { paddingValues ->
@@ -112,15 +112,15 @@ fun StudentScreen(
                         StudentRow(
                             student = student,
                             onDeleteButtonClick = { studentToDelete ->
-                                editStudentViewModel.onAction(
-                                    EditStudentViewModel.UserAction.DeleteButtonClicked(
+                                studentViewModel.onAction(
+                                    StudentViewModel.UserAction.DeleteButtonClicked(
                                         studentToDelete
                                     )
                                 )
                             },
                             onEditButtonClick = { studentToEdit ->
-                                editStudentViewModel.onAction(
-                                    EditStudentViewModel.UserAction.EditButtonClicked(
+                                studentViewModel.onAction(
+                                    StudentViewModel.UserAction.EditButtonClicked(
                                         studentToEdit
                                     )
                                 )
@@ -128,9 +128,9 @@ fun StudentScreen(
                         )
                     }
                 }
-                if (state.isDeleting && state.selectedStudent != null) {
+                if (studentState.isDeleting && studentState.selectedStudent != null) {
                     DeleteStudentDialog(
-                        student = state.selectedStudent,
+                        student = studentState.selectedStudent,
                         onConfirm = { student ->
                             studentViewModel.deleteStudent(student) { success ->
                                 if (success) {
@@ -146,64 +146,63 @@ fun StudentScreen(
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
-                                editStudentViewModel.onAction(EditStudentViewModel.UserAction.DeleteStudentDialogDismiss)
+                                studentViewModel.onAction(StudentViewModel.UserAction.DeleteStudentDialogDismiss)
                             }
                         },
                         onDismiss = {
-                            editStudentViewModel.onAction(EditStudentViewModel.UserAction.DeleteStudentDialogDismiss)
+                            studentViewModel.onAction(StudentViewModel.UserAction.DeleteStudentDialogDismiss)
                         }
                     )
                 }
-                if (state.isEditing || state.isAdding) {
+                if (studentState.isEditing || studentState.isAdding) {
                     EditStudentDialog(
-                        state = state,
+                        state = studentState,
                         onIdChanged = { studentId ->
-                            editStudentViewModel.onAction(
-                                EditStudentViewModel.UserAction.OnIDChanged(
+                            studentViewModel.onAction(
+                                StudentViewModel.UserAction.OnIDChanged(
                                     studentId
                                 )
                             )
                         },
                         onNameChanged = { studentName ->
-                            editStudentViewModel.onAction(
-                                EditStudentViewModel.UserAction.OnNameChanged(
+                            studentViewModel.onAction(
+                                StudentViewModel.UserAction.OnNameChanged(
                                     studentName.uppercase()
                                 )
                             )
                         },
                         onGenderChanged = { gender ->
-                            editStudentViewModel.onAction(
-                                EditStudentViewModel.UserAction.OnGenderChanged(
+                            studentViewModel.onAction(
+                                StudentViewModel.UserAction.OnGenderChanged(
                                     gender
                                 )
                             )
                         },
                         onDismissRequest = {
-                            editStudentViewModel.onAction(EditStudentViewModel.UserAction.EditStudentDialogDismiss)
-                        },
-                        onSaveStudent = { student ->
-                            if (state.isEditing) {
-                                studentViewModel.updateStudent(student) { success ->
-                                    if (success) {
-                                        editStudentViewModel.onAction(EditStudentViewModel.UserAction.OnSaveStudent)
-                                        editStudentViewModel.onAction(EditStudentViewModel.UserAction.EditStudentDialogDismiss)
-                                        toastMsg(context, "Updated!")
-                                    } else {
-                                        toastMsg(context, "Unable to update. Try again!")
-                                    }
+                            studentViewModel.onAction(StudentViewModel.UserAction.EditStudentDialogDismiss)
+                        }
+                    ) { student ->
+                        if (studentState.isEditing) {
+                            studentViewModel.updateStudent(student) { success ->
+                                if (success) {
+                                    studentViewModel.onAction(StudentViewModel.UserAction.OnSaveStudent)
+                                    studentViewModel.onAction(StudentViewModel.UserAction.EditStudentDialogDismiss)
+                                    toastMsg(context, "Updated!")
+                                } else {
+                                    toastMsg(context, "Unable to update. Try again!")
                                 }
-                            } else {
-                                studentViewModel.insertStudent(student) { success ->
-                                    if (success) {
-                                        editStudentViewModel.onAction(EditStudentViewModel.UserAction.OnSaveStudent)
-                                        toastMsg(context, "Saved!")
-                                    } else {
-                                        toastMsg(context, "Unable to save. Try again!")
-                                    }
+                            }
+                        } else {
+                            studentViewModel.insertStudent(student) { success ->
+                                if (success) {
+                                    studentViewModel.onAction(StudentViewModel.UserAction.OnSaveStudent)
+                                    toastMsg(context, "Saved!")
+                                } else {
+                                    toastMsg(context, "Unable to save. Try again!")
                                 }
                             }
                         }
-                    )
+                    }
                 }
             }
         }
@@ -350,13 +349,14 @@ private fun DeleteStudentDialog(
 
 @Composable
 private fun EditStudentDialog(
-    state: EditStudentViewModel.EditState,
+    state: StudentViewModel.StudentState,
     onIdChanged: (String) -> Unit,
     onNameChanged: (String) -> Unit,
     onGenderChanged: (String) -> Unit,
     onDismissRequest: () -> Unit,
     onSaveStudent: (StudentEntity) -> Unit
 ) {
+    val scrollState = rememberScrollState()
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(
@@ -365,13 +365,14 @@ private fun EditStudentDialog(
     ) {
         Surface(
             modifier = Modifier
-                .padding(28.dp)
+                .padding(14.dp)
                 .widthIn(min = 280.dp, max = 560.dp),
             shape = RoundedCornerShape(28.dp)
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp),
+                    .padding(10.dp)
+                    .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -408,29 +409,20 @@ private fun EditStudentDialog(
                     placeHolder = "STUDENT NAME",
                     onValueChange = onNameChanged
                 )
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    GenderSelection(
-                        text = "MALE",
-                        selected = state.gender == GenderType.M.name,
-                        onClick = { onGenderChanged("M") }
-                    )
-                    GenderSelection(
-                        text = "FEMALE",
-                        selected = state.gender == GenderType.F.name,
-                        onClick = { onGenderChanged("F") }
-                    )
-                    GenderSelection(
-                        text = "OTHER",
-                        selected = state.gender == GenderType.O.name,
-                        onClick = { onGenderChanged("O") }
-                    )
+                BoxWithConstraints {
+                    if (maxWidth < 300.dp) {
+                        ColumnGenderSection(
+                            state = state,
+                            onGenderChanged = onGenderChanged
+                        )
+                    } else {
+                        RowGenderSection(
+                            state = state,
+                            onGenderChanged = onGenderChanged
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.padding(24.dp))
+                Spacer(modifier = Modifier.padding(5.dp))
                 Button(
                     onClick = {
                         if (state.selectedStudent != null) {
@@ -466,6 +458,63 @@ private fun EditStudentDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RowGenderSection(
+    state: StudentViewModel.StudentState,
+    onGenderChanged: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        GenderSelection(
+            text = "MALE",
+            selected = state.gender == GenderType.M.name,
+            onClick = { onGenderChanged("M") }
+        )
+        GenderSelection(
+            text = "FEMALE",
+            selected = state.gender == GenderType.F.name,
+            onClick = { onGenderChanged("F") }
+        )
+        GenderSelection(
+            text = "OTHER",
+            selected = state.gender == GenderType.O.name,
+            onClick = { onGenderChanged("O") }
+        )
+    }
+}
+
+@Composable
+private fun ColumnGenderSection(
+    state: StudentViewModel.StudentState,
+    onGenderChanged: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        GenderSelection(
+            text = "MALE",
+            selected = state.gender == GenderType.M.name,
+            onClick = { onGenderChanged("M") }
+        )
+        GenderSelection(
+            text = "FEMALE",
+            selected = state.gender == GenderType.F.name,
+            onClick = { onGenderChanged("F") }
+        )
+        GenderSelection(
+            text = "OTHER",
+            selected = state.gender == GenderType.O.name,
+            onClick = { onGenderChanged("O") }
+        )
     }
 }
 
@@ -509,7 +558,9 @@ private fun EditStudentTextField(
     TextField(
         value = value,
         onValueChange = { onValueChange(it) },
-        modifier = Modifier.padding(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             capitalization = KeyboardCapitalization.Characters
@@ -517,19 +568,7 @@ private fun EditStudentTextField(
         placeholder = {
             Text(text = placeHolder)
         },
-        enabled = enabled
+        enabled = enabled,
+        maxLines = 1
     )
 }
-
-/*@Preview(showSystemUi = true)
-@Composable
-fun StudentPreview() {
-    EditStudentDialog(
-        state = EditStudentViewModel.EditState(),
-        onIdChanged = {},
-        onNameChanged = {},
-        onDismissRequest = {},
-        onGenderChanged = {},
-        onSaveStudent = {}
-    )
-}*/
