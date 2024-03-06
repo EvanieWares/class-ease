@@ -55,16 +55,6 @@ fun HomeScreen(
             .fillMaxSize(),
         topBar = {
             HomeTopBar()
-        },
-        bottomBar = {
-            HomeBottomBar(
-                onAccountClick = {
-                    navController.navigate(Screen.Account.route)
-                },
-                onSettingsClick = {
-                    navController.navigate(Screen.Settings.route)
-                }
-            )
         }
     ) { paddingValues ->
         Surface(
@@ -187,24 +177,6 @@ private fun HomeTopBar() {
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun HomeBottomBar(
-    onAccountClick: () -> Unit,
-    onSettingsClick: () -> Unit
-) {
-    BottomAppBar(
-        containerColor = MaterialTheme.colorScheme.primary,
-        tonalElevation = 8.dp
-    ) {
-        IconButton(onClick = onAccountClick) {
-            Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Account Icon")
-        }
-        IconButton(onClick = onSettingsClick) {
-            Icon(imageVector = Icons.Default.Settings, contentDescription = "Settings Icon")
         }
     }
 }

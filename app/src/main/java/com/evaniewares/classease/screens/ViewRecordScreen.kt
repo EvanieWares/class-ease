@@ -55,6 +55,7 @@ fun ProgressScreen(
     windowSize: WindowWidthSizeClass,
     studentViewModel: StudentViewModel
 ) {
+    studentViewModel.getStudentsSortByScore()
     val state = studentViewModel.studentState.collectAsStateWithLifecycle().value
     val studentList = studentViewModel.studentList.collectAsStateWithLifecycle().value
     val navigationType: ClassEaseNavigationType
@@ -104,7 +105,7 @@ fun ProgressScreen(
                     activity = "Progress",
                     onBackClick = { navController.popBackStack() }
                 )
-            },
+            }/*,
             bottomBar = {
                 if (navigationType == ClassEaseNavigationType.BOTTOM_NAVIGATION) {
                     ProgressBottomBar(
@@ -116,7 +117,7 @@ fun ProgressScreen(
                         }
                     )
                 }
-            }
+            }*/
         ) { paddingValues ->
             Column(
                 modifier = Modifier

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,12 +20,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +35,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -79,23 +79,21 @@ fun StudentScreen(
                 onBackClick = { navController.popBackStack() }
             )
         },
-        bottomBar = {
-            ElevatedButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .defaultMinSize(minHeight = 80.dp),
+        floatingActionButton = {
+            IconButton(
                 onClick = {
                     studentViewModel.onAction(StudentViewModel.UserAction.AddButtonClicked)
-                },
-                shape = RoundedCornerShape(0.dp),
-                colors = ButtonDefaults.buttonColors(),
-                elevation = ButtonDefaults.buttonElevation(5.dp)
+                }
             ) {
-                Text(
-                    text = "Add",
-                    style = MaterialTheme.typography.labelLarge
-                )
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add new student")
             }
+            /*TextButton(
+                onClick = {
+                    studentViewModel.onAction(StudentViewModel.UserAction.AddButtonClicked)
+                }
+            ) {
+                Text(text = "Add new")
+            }*/
         }
     ) { paddingValues ->
         Surface(
