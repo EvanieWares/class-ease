@@ -19,7 +19,10 @@ fun NavGraph(
     navController: NavHostController,
     windowSize: WindowWidthSizeClass
 ) {
-    NavHost(navController = navController, startDestination = Screen.Home.route) {
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Home.route
+    ) {
         composable(Screen.Home.route) {
             HomeScreen(navController)
         }

@@ -2,9 +2,9 @@ package com.evaniewares.classease
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,24 +17,25 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.TableView
 import androidx.compose.material.icons.outlined.Update
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.evaniewares.classease.domain.model.NavItem
 import com.evaniewares.classease.navigation.NavGraph
 import com.evaniewares.classease.navigation.Screen
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.ui.theme.ClassEaseTheme
+import com.evaniewares.classease.utils.BackButtonHandler
+import com.evaniewares.classease.utils.BottomNavigationBar
+import com.evaniewares.classease.utils.CustomNavigationRail
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = rememberSaveable {
                     mutableStateOf(Screen.Home.route)
                 }
+                val showNavigationRail = windowSize.widthSizeClass != WindowWidthSizeClass.Compact
 
                 val navItems = listOf(
                     NavItem(
@@ -80,34 +82,22 @@ class MainActivity : ComponentActivity() {
                     )
                 )
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(start = if (showNavigationRail) 80.dp else 0.dp),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Scaffold(
                         bottomBar = {
-                            NavigationBar {
-                                navItems.forEach { navItem ->
-                                    NavigationBarItem(
-                                        selected = currentRoute.value == navItem.route,
-                                        onClick = {
-                                            currentRoute.value = navItem.route
-                                            navController.navigate(navItem.route)
-                                        },
-                                        icon = {
-                                            Icon(
-                                                imageVector = if (currentRoute.value == navItem.route) {
-                                                    navItem.selectedIcon
-                                                } else {
-                                                    navItem.unSelectedIcon
-                                                },
-                                                contentDescription = navItem.title
-                                            )
-                                        },
-                                        label = {
-                                            Text(text = navItem.title)
-                                        }
-                                    )
-                                }
+                            AnimatedVisibility(visible = !showNavigationRail) {
+                                BottomNavigationBar(
+                                    navItems = navItems,
+                                    currentRoute = currentRoute.value,
+                                    onClick = { route ->
+                                        currentRoute.value = route
+                                        navController.navigate(route)
+                                    }
+                                )
                             }
                         }
                     ) { paddingValues ->
@@ -121,13 +111,23 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     }
-                }
-                BackHandler(enabled = true) {
-                    if (currentRoute.value == Screen.Home.route) {
-                        finishAffinity()
-                    } else {
-                        navController.navigate(Screen.Home.route)
+                    BackButtonHandler {
+                        if (currentRoute.value == Screen.Home.route) {
+                            this.finishAffinity()
+                        } else {
+                            navController.navigate(Screen.Home.route)
+                        }
                     }
+                }
+                AnimatedVisibility(visible = showNavigationRail) {
+                    CustomNavigationRail(
+                        navItems = navItems,
+                        currentRoute = currentRoute.value,
+                        onClick = { route ->
+                            currentRoute.value = route
+                            navController.navigate(route)
+                        }
+                    )
                 }
             }
         }

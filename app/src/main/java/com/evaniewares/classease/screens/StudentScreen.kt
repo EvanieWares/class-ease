@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -80,20 +81,13 @@ fun StudentScreen(
             )
         },
         floatingActionButton = {
-            IconButton(
-                onClick = {
-                    studentViewModel.onAction(StudentViewModel.UserAction.AddButtonClicked)
-                }
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add new student")
-            }
-            /*TextButton(
+            FloatingActionButton(
                 onClick = {
                     studentViewModel.onAction(StudentViewModel.UserAction.AddButtonClicked)
                 }
             ) {
                 Text(text = "Add new")
-            }*/
+            }
         }
     ) { paddingValues ->
         Surface(
