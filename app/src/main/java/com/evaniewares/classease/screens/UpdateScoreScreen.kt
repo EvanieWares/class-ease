@@ -84,13 +84,7 @@ fun ScoringScreen(
 
     Scaffold(
         modifier = Modifier
-            .fillMaxSize(),
-        topBar = {
-            CustomTopBar(
-                activity = "Scoring",
-                onBackClick = { navController.popBackStack() }
-            )
-        }
+            .fillMaxSize()
     ) { paddingValues ->
         Surface(
             modifier = Modifier.padding(paddingValues)
@@ -225,7 +219,10 @@ private fun LearningAreas(
                     )
                 },
                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                modifier = Modifier.menuAnchor()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+                    .padding(start = 5.dp, end = 5.dp)
             )
             ExposedDropdownMenu(
                 expanded = isExpanded,

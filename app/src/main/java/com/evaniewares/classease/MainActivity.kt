@@ -4,38 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.TableView
-import androidx.compose.material.icons.filled.Update
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.TableView
-import androidx.compose.material.icons.outlined.Update
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
-import com.evaniewares.classease.domain.model.NavItem
-import com.evaniewares.classease.navigation.NavGraph
-import com.evaniewares.classease.navigation.Screen
+import com.evaniewares.classease.navigation.HomeScreenRoutes
+import com.evaniewares.classease.navigation.RootNavGraph
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.ui.theme.ClassEaseTheme
-import com.evaniewares.classease.utils.BackButtonHandler
-import com.evaniewares.classease.utils.BottomNavigationBar
-import com.evaniewares.classease.utils.CustomNavigationRail
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -51,32 +28,37 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val windowSize = calculateWindowSizeClass(activity = this)
                 val currentRoute = rememberSaveable {
-                    mutableStateOf(Screen.Home.route)
+                    mutableStateOf(HomeScreenRoutes.Home.route)
                 }
-                val showNavigationRail = windowSize.widthSizeClass != WindowWidthSizeClass.Compact
+                RootNavGraph(
+                    navController = navController,
+                    studentViewModel = studentViewModel
+                )
+
+                /*val showNavigationRail = windowSize.widthSizeClass != WindowWidthSizeClass.Compact
 
                 val navItems = listOf(
                     NavItem(
                         title = "Home",
-                        route = Screen.Home.route,
+                        route = HomeScreen.Home.route,
                         selectedIcon = Icons.Filled.Home,
                         unSelectedIcon = Icons.Outlined.Home
                     ),
                     NavItem(
                         title = "Students",
-                        route = Screen.Students.route,
+                        route = HomeScreen.Students.route,
                         selectedIcon = Icons.Filled.Person,
                         unSelectedIcon = Icons.Outlined.Person
                     ),
                     NavItem(
                         title = "Scoring",
-                        route = Screen.Scoring.route,
+                        route = HomeScreen.Scoring.route,
                         selectedIcon = Icons.Filled.Update,
                         unSelectedIcon = Icons.Outlined.Update
                     ),
                     NavItem(
                         title = "Progress",
-                        route = Screen.Progress.route,
+                        route = HomeScreen.Progress.route,
                         selectedIcon = Icons.Filled.TableView,
                         unSelectedIcon = Icons.Outlined.TableView
                     )
@@ -112,10 +94,10 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     BackButtonHandler {
-                        if (currentRoute.value == Screen.Home.route) {
+                        if (currentRoute.value == HomeScreen.Home.route) {
                             this.finishAffinity()
                         } else {
-                            navController.navigate(Screen.Home.route)
+                            navController.navigate(HomeScreen.Home.route)
                         }
                     }
                 }
@@ -128,7 +110,7 @@ class MainActivity : ComponentActivity() {
                             navController.navigate(route)
                         }
                     )
-                }
+                }*/
             }
         }
     }

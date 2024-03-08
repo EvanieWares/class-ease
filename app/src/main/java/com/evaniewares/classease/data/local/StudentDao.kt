@@ -7,7 +7,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.evaniewares.classease.domain.model.StudentEntity
-import com.evaniewares.classease.navigation.Screen
 import kotlinx.coroutines.flow.Flow
 
 @Dao

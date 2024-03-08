@@ -1,6 +1,7 @@
 package com.evaniewares.classease.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -36,7 +38,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -61,8 +62,193 @@ import com.evaniewares.classease.utils.CustomTopBar
 import com.evaniewares.classease.utils.GenderType
 import com.evaniewares.classease.utils.toastMsg
 
+/**
+ * Screen that enables users to add, edit, update and delete students.
+ *
+ * To add new students, users will click the [FloatingActionButton] that says "Add new".
+ * Then a [Dialog] will appear to enable users enter student unique ID, name and choose
+ * the student's gender.
+ * The save [Button] will be enabled when the user input is valid.
+ *
+ * @param navController the [NavHostController] that will help to go
+ * back to the previous page.
+ * @param studentViewModel the [StudentViewModel] instance that will help
+ * to retrieve and update data from and to the database. It will also help data
+ * to survive recompositions
+ */
 @Composable
 fun StudentScreen(
+    navController: NavHostController,
+    studentViewModel: StudentViewModel
+) {
+    val context = LocalContext.current
+    val studentState = studentViewModel.studentState.collectAsStateWithLifecycle().value
+    val studentList =
+        studentViewModel.studentList.collectAsStateWithLifecycle(initialValue = emptyList())
+    Surface(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(5.dp)
+        ) {
+            CustomAppBar(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onAddNewClick = {
+                    // TODO
+                }
+            )
+            StudentHeader()
+            LazyColumn {
+                items(studentList.value) { student ->
+                    StudentRow(
+                        student = student,
+                        onDeleteButtonClick = { studentToDelete ->
+                            studentViewModel.onAction(
+                                StudentViewModel.UserAction.DeleteButtonClicked(
+                                    studentToDelete
+                                )
+                            )
+                        },
+                        onEditButtonClick = { studentToEdit ->
+                            studentViewModel.onAction(
+                                StudentViewModel.UserAction.EditButtonClicked(
+                                    studentToEdit
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+            if (studentState.isDeleting && studentState.selectedStudent != null) {
+                DeleteStudentDialog(
+                    student = studentState.selectedStudent,
+                    onConfirm = { student ->
+                        studentViewModel.deleteStudent(student) { success ->
+                            if (success) {
+                                Toast.makeText(
+                                    context,
+                                    "Student was removed successfully",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Unable to remove student. Please try again!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            studentViewModel.onAction(StudentViewModel.UserAction.DeleteStudentDialogDismiss)
+                        }
+                    },
+                    onDismiss = {
+                        studentViewModel.onAction(StudentViewModel.UserAction.DeleteStudentDialogDismiss)
+                    }
+                )
+            }
+            if (studentState.isEditing || studentState.isAdding) {
+                EditStudentDialog(
+                    state = studentState,
+                    onIdChanged = { studentId ->
+                        studentViewModel.onAction(
+                            StudentViewModel.UserAction.OnIDChanged(
+                                studentId
+                            )
+                        )
+                    },
+                    onNameChanged = { studentName ->
+                        studentViewModel.onAction(
+                            StudentViewModel.UserAction.OnNameChanged(
+                                studentName.uppercase()
+                            )
+                        )
+                    },
+                    onGenderChanged = { gender ->
+                        studentViewModel.onAction(
+                            StudentViewModel.UserAction.OnGenderChanged(
+                                gender
+                            )
+                        )
+                    },
+                    onDismissRequest = {
+                        studentViewModel.onAction(StudentViewModel.UserAction.EditStudentDialogDismiss)
+                    }
+                ) { student ->
+                    if (studentState.isEditing) {
+                        studentViewModel.updateStudent(student) { success ->
+                            if (success) {
+                                studentViewModel.onAction(StudentViewModel.UserAction.OnSaveStudent)
+                                studentViewModel.onAction(StudentViewModel.UserAction.EditStudentDialogDismiss)
+                                toastMsg(context, "Updated!")
+                            } else {
+                                toastMsg(context, "Unable to update. Try again!")
+                            }
+                        }
+                    } else {
+                        studentViewModel.insertStudent(student) { success ->
+                            if (success) {
+                                studentViewModel.onAction(StudentViewModel.UserAction.OnSaveStudent)
+                                toastMsg(context, "Saved!")
+                            } else {
+                                toastMsg(context, "Unable to save. Try again!")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Shows the back icon to help user navigate to the previous screen
+ *
+ * @param onBackClick handles user click events on the [ArrowBack] icon
+ * @param onAddNewClick displays a dialog that has a form for users to fill in
+ * the details of the student to be added.
+ */
+@Composable
+private fun CustomAppBar(
+    onBackClick: () -> Unit,
+    onAddNewClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(5.dp)
+    ) {
+        IconButton(
+            onClick = onBackClick,
+            modifier = Modifier
+                .size(24.dp)
+                .align(Alignment.CenterStart)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                contentDescription = "Back"
+            )
+        }
+        Surface(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .clickable { onAddNewClick() },
+            tonalElevation = 10.dp
+        ) {
+            Text(
+                text = "ADD NEW",
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(5.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun StudentScreenBackup(
     studentViewModel: StudentViewModel,
     navController: NavHostController
 ) {
@@ -86,7 +272,15 @@ fun StudentScreen(
                     studentViewModel.onAction(StudentViewModel.UserAction.AddButtonClicked)
                 }
             ) {
-                Text(text = "Add new")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add student"
+                    )
+                    Text(text = "Add new")
+                }
             }
         }
     ) { paddingValues ->

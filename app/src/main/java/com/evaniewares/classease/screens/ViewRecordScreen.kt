@@ -50,7 +50,7 @@ import com.evaniewares.classease.utils.StudentSortType
 import com.evaniewares.classease.utils.getTotalScore
 
 @Composable
-fun ProgressScreen(
+fun ProgressScreenBackup(
     navController: NavHostController,
     windowSize: WindowWidthSizeClass,
     studentViewModel: StudentViewModel
@@ -105,19 +105,7 @@ fun ProgressScreen(
                     activity = "Progress",
                     onBackClick = { navController.popBackStack() }
                 )
-            }/*,
-            bottomBar = {
-                if (navigationType == ClassEaseNavigationType.BOTTOM_NAVIGATION) {
-                    ProgressBottomBar(
-                        onSettingsClick = {
-                            // TODO
-                        },
-                        onSortClick = {
-                            isSortDialogShow.value = true
-                        }
-                    )
-                }
-            }*/
+            }
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -137,6 +125,82 @@ fun ProgressScreen(
                         ExpandedProgressScreen(studentList = studentList)
                     }
                 }
+            }
+        }
+        AnimatedVisibility(isSortDialogShow.value) {
+            SortTypeDialog(
+                onDismiss = {
+                    isSortDialogShow.value = false
+                },
+                onGradeSelect = {
+                    studentViewModel.onSortTypeChange(StudentSortType.GRADE)
+                    isSortDialogShow.value = false
+                },
+                onIdSelect = {
+                    studentViewModel.onSortTypeChange(StudentSortType.ID)
+                    isSortDialogShow.value = false
+                },
+                onScoreSelect = {
+                    studentViewModel.onSortTypeChange(StudentSortType.SCORE)
+                    isSortDialogShow.value = false
+                },
+                state = state
+            )
+        }
+    }
+}
+
+@Composable
+fun ProgressScreen(
+    navController: NavHostController,
+    studentViewModel: StudentViewModel
+) {
+    studentViewModel.getStudentsSortByScore()
+    val state = studentViewModel.studentState.collectAsStateWithLifecycle().value
+    val studentList = studentViewModel.studentList.collectAsStateWithLifecycle().value
+    val isSortDialogShow = rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(state.progressSortType) {
+        when (state.progressSortType) {
+            StudentSortType.SCORE -> {
+                studentViewModel.getStudentsSortByScore()
+            }
+
+            StudentSortType.ID -> {
+                studentViewModel.getStudentsSortById()
+            }
+
+            StudentSortType.GRADE -> {
+                studentViewModel.getStudentsSortByGrade()
+            }
+        }
+    }
+
+    Surface {
+        Scaffold(
+            modifier = Modifier.fillMaxSize()
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                CompactProgressScreen(studentList = studentList)
+                /*when (navigationType) {
+                    ClassEaseNavigationType.BOTTOM_NAVIGATION -> {
+                        CompactProgressScreen(studentList = studentList)
+                    }
+
+                    ClassEaseNavigationType.NAVIGATION_RAIL -> {
+                        MediumProgressScreen(studentList = studentList)
+                    }
+
+                    else -> {
+                        ExpandedProgressScreen(studentList = studentList)
+                    }
+                }*/
             }
         }
         AnimatedVisibility(isSortDialogShow.value) {
@@ -209,7 +273,7 @@ private fun CompactProgressScreen(
 ) {
     StudentItemHeader()
     LazyColumn {
-        items(studentList) { student ->
+        items(studentList.sortedByDescending { it.gradeGroup }) { student ->
             StudentItem(student = student)
         }
     }

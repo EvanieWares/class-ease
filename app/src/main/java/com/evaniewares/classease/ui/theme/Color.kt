@@ -17,4 +17,7 @@ val SecondaryAppColor = Color(0xFF4D7747)
 val Blue = Color(0xFF1665DB)
 val DangerColor = Color(0xFFCF3131)
 
-val BackgroundColor = Color(0xFF818181)
+val BackgroundColor = Color(0xFFCECECE)
+val TransparentBackgroundColor = Color(0x1AFFFFFF)
+val DarkGreen = Color(0xFF4E7A48)
+val Grey = Color(0xFFF0F2F7)

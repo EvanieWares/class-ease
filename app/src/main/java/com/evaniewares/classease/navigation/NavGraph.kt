@@ -8,10 +8,10 @@ import androidx.navigation.compose.composable
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.screens.AccountScreen
 import com.evaniewares.classease.screens.HomeScreen
-import com.evaniewares.classease.screens.ProgressScreen
+import com.evaniewares.classease.screens.ProgressScreenBackup
 import com.evaniewares.classease.screens.ScoringScreen
 import com.evaniewares.classease.screens.SettingScreen
-import com.evaniewares.classease.screens.StudentScreen
+import com.evaniewares.classease.screens.StudentScreenBackup
 
 @Composable
 fun NavGraph(
@@ -21,31 +21,31 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = HomeScreenRoutes.Home.route
     ) {
-        composable(Screen.Home.route) {
+        composable(HomeScreenRoutes.Home.route) {
             HomeScreen(navController)
         }
-        composable(Screen.Students.route) {
-            StudentScreen(
+        composable(HomeScreenRoutes.Students.route) {
+            StudentScreenBackup(
                 studentViewModel = studentViewModel,
                 navController = navController
             )
         }
-        composable(Screen.Account.route){
+        composable(HomeScreenRoutes.Account.route){
             AccountScreen(navController = navController)
         }
-        composable(Screen.Settings.route){
+        composable(HomeScreenRoutes.Settings.route){
             SettingScreen(navController = navController)
         }
-        composable(Screen.Progress.route){
-            ProgressScreen(
+        composable(HomeScreenRoutes.Progress.route){
+            ProgressScreenBackup(
                 navController = navController,
                 windowSize = windowSize,
                 studentViewModel = studentViewModel
             )
         }
-        composable(Screen.Scoring.route){
+        composable(HomeScreenRoutes.Scoring.route){
             ScoringScreen(
                 navController = navController,
                 studentViewModel = studentViewModel
