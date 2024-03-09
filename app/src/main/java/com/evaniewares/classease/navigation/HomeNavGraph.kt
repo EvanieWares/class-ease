@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.screens.AccountScreen
+import com.evaniewares.classease.screens.AddEditStudentScreen
 import com.evaniewares.classease.screens.HomeScreen
 import com.evaniewares.classease.screens.NotificationScreen
 import com.evaniewares.classease.screens.ProgressScreen
@@ -54,6 +55,12 @@ fun HomeNavGraph(
         }
         composable(route = HomeScreenRoutes.Notifications.route) {
             NotificationScreen(navController = navController)
+        }
+        composable(route = HomeScreenRoutes.AddEditStudent.route) {
+            AddEditStudentScreen(
+                navController = navController,
+                studentViewModel = studentViewModel
+            )
         }
     }
 }

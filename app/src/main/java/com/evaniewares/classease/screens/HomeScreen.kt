@@ -1,6 +1,5 @@
 package com.evaniewares.classease.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -25,16 +23,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.evaniewares.classease.navigation.HomeScreenRoutes
-import com.evaniewares.classease.ui.theme.BackgroundColor
 import com.evaniewares.classease.ui.theme.ClassEaseTheme
-import com.evaniewares.classease.ui.theme.TransparentBackgroundColor
 
 /**
  * App's home screen.
@@ -47,15 +41,12 @@ fun HomeScreen(navController: NavHostController) {
     val scrollState = rememberScrollState()
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = BackgroundColor
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(10.dp)
-                .clip(RoundedCornerShape(topStartPercent = 10, topEndPercent = 10))
-                .background(TransparentBackgroundColor)
                 .verticalScroll(scrollState)
         ) {
             ScrollableTopBar(

@@ -8,4 +8,5 @@ sealed class HomeScreenRoutes(val route: String) {
     data object Settings: HomeScreenRoutes(route = "settings")
     data object Account: HomeScreenRoutes(route = "account")
     data object Notifications: HomeScreenRoutes(route = "notifications")
+    data object AddEditStudent: HomeScreenRoutes(route = "add_edit_student")
 }

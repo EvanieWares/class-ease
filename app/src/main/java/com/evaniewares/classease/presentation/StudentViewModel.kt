@@ -108,7 +108,8 @@ class StudentViewModel @Inject constructor(
                 _studentState.update {
                     it.copy(
                         selectedStudent = null,
-                        isAdding = true
+                        isAdding = true,
+                        isEditing = false
                     )
                 }
             }
@@ -127,6 +128,7 @@ class StudentViewModel @Inject constructor(
                     it.copy(
                         selectedStudent = userAction.studentEntity,
                         isEditing = true,
+                        isAdding = false,
                         studentName = userAction.studentEntity.studentName,
                         gender = userAction.studentEntity.gender,
                         studentId = userAction.studentEntity.studentId.toString()

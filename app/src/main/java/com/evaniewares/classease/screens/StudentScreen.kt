@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -56,6 +55,7 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.evaniewares.classease.domain.model.StudentEntity
+import com.evaniewares.classease.navigation.HomeScreenRoutes
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.ui.theme.DangerColor
 import com.evaniewares.classease.utils.CustomTopBar
@@ -94,11 +94,9 @@ fun StudentScreen(
                 .padding(5.dp)
         ) {
             CustomAppBar(
-                onBackClick = {
-                    navController.popBackStack()
-                },
                 onAddNewClick = {
-                    // TODO
+                    studentViewModel.onAction(StudentViewModel.UserAction.AddButtonClicked)
+                    navController.navigate(HomeScreenRoutes.AddEditStudent.route)
                 }
             )
             StudentHeader()
@@ -119,6 +117,7 @@ fun StudentScreen(
                                     studentToEdit
                                 )
                             )
+                            navController.navigate(HomeScreenRoutes.AddEditStudent.route)
                         }
                     )
                 }
@@ -149,7 +148,7 @@ fun StudentScreen(
                     }
                 )
             }
-            if (studentState.isEditing || studentState.isAdding) {
+            /*if (studentState.isEditing || studentState.isAdding) {
                 EditStudentDialog(
                     state = studentState,
                     onIdChanged = { studentId ->
@@ -198,7 +197,7 @@ fun StudentScreen(
                         }
                     }
                 }
-            }
+            }*/
         }
     }
 }
@@ -206,13 +205,11 @@ fun StudentScreen(
 /**
  * Shows the back icon to help user navigate to the previous screen
  *
- * @param onBackClick handles user click events on the [ArrowBack] icon
  * @param onAddNewClick displays a dialog that has a form for users to fill in
  * the details of the student to be added.
  */
 @Composable
 private fun CustomAppBar(
-    onBackClick: () -> Unit,
     onAddNewClick: () -> Unit
 ) {
     Box(
@@ -220,17 +217,6 @@ private fun CustomAppBar(
             .fillMaxWidth()
             .padding(5.dp)
     ) {
-        IconButton(
-            onClick = onBackClick,
-            modifier = Modifier
-                .size(24.dp)
-                .align(Alignment.CenterStart)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                contentDescription = "Back"
-            )
-        }
         Surface(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
