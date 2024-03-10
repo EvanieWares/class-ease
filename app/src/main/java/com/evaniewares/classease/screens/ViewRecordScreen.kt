@@ -1,7 +1,12 @@
 package com.evaniewares.classease.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,146 +18,50 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
-import com.evaniewares.classease.R
 import com.evaniewares.classease.domain.model.StudentEntity
 import com.evaniewares.classease.presentation.StudentViewModel
-import com.evaniewares.classease.utils.ClassEaseNavigationType
-import com.evaniewares.classease.utils.CustomTopBar
+import com.evaniewares.classease.tests.studentListTest
 import com.evaniewares.classease.utils.StudentSortType
 import com.evaniewares.classease.utils.getTotalScore
-
-@Composable
-fun ProgressScreenBackup(
-    navController: NavHostController,
-    windowSize: WindowWidthSizeClass,
-    studentViewModel: StudentViewModel
-) {
-    studentViewModel.getStudentsSortByScore()
-    val state = studentViewModel.studentState.collectAsStateWithLifecycle().value
-    val studentList = studentViewModel.studentList.collectAsStateWithLifecycle().value
-    val navigationType: ClassEaseNavigationType
-    val isSortDialogShow = rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    when (windowSize) {
-        WindowWidthSizeClass.Compact -> {
-            navigationType = ClassEaseNavigationType.BOTTOM_NAVIGATION
-        }
-
-        WindowWidthSizeClass.Medium -> {
-            navigationType = ClassEaseNavigationType.NAVIGATION_RAIL
-        }
-
-        WindowWidthSizeClass.Expanded -> {
-            navigationType = ClassEaseNavigationType.PERMANENT_NAVIGATION_DRAWER
-        }
-
-        else -> {
-            navigationType = ClassEaseNavigationType.BOTTOM_NAVIGATION
-        }
-    }
-
-    LaunchedEffect(state.progressSortType) {
-        when (state.progressSortType) {
-            StudentSortType.SCORE -> {
-                studentViewModel.getStudentsSortByScore()
-            }
-
-            StudentSortType.ID -> {
-                studentViewModel.getStudentsSortById()
-            }
-
-            StudentSortType.GRADE -> {
-                studentViewModel.getStudentsSortByGrade()
-            }
-        }
-    }
-
-    Surface {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            topBar = {
-                CustomTopBar(
-                    activity = "Progress",
-                    onBackClick = { navController.popBackStack() }
-                )
-            }
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                when (navigationType) {
-                    ClassEaseNavigationType.BOTTOM_NAVIGATION -> {
-                        CompactProgressScreen(studentList = studentList)
-                    }
-
-                    ClassEaseNavigationType.NAVIGATION_RAIL -> {
-                        MediumProgressScreen(studentList = studentList)
-                    }
-
-                    else -> {
-                        ExpandedProgressScreen(studentList = studentList)
-                    }
-                }
-            }
-        }
-        AnimatedVisibility(isSortDialogShow.value) {
-            SortTypeDialog(
-                onDismiss = {
-                    isSortDialogShow.value = false
-                },
-                onGradeSelect = {
-                    studentViewModel.onSortTypeChange(StudentSortType.GRADE)
-                    isSortDialogShow.value = false
-                },
-                onIdSelect = {
-                    studentViewModel.onSortTypeChange(StudentSortType.ID)
-                    isSortDialogShow.value = false
-                },
-                onScoreSelect = {
-                    studentViewModel.onSortTypeChange(StudentSortType.SCORE)
-                    isSortDialogShow.value = false
-                },
-                state = state
-            )
-        }
-    }
-}
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProgressScreen(
-    navController: NavHostController,
     studentViewModel: StudentViewModel
 ) {
     studentViewModel.getStudentsSortByScore()
@@ -226,44 +135,91 @@ fun ProgressScreen(
     }
 }
 
-/**
- * Displays a bottom [NavigationBar]
- *
- * @param onSettingsClick this is called when user clicks on Settings.
- * @param onSortClick this is called when user clicks Sort.
- */
 @Composable
-private fun ProgressBottomBar(
-    onSettingsClick: () -> Unit,
-    onSortClick: () -> Unit
+private fun CustomSearchBar(
+    active: Boolean,
+    onQueryChange: (String) -> Unit,
+    onSearch: (String) -> Unit,
+    onActiveChange: (Boolean) -> Unit,
+    query: String
 ) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = false,
-            onClick = onSettingsClick,
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Settings,
-                    contentDescription = "Settings"
-                )
-            },
-            label = {
-                Text(text = "Settings")
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            AnimatedVisibility(
+                visible = active,
+                enter = fadeIn() + slideInHorizontally(),
+                exit = fadeOut() + slideOutHorizontally()
+            ) {
+                IconButton(
+                    onClick = {
+                        onActiveChange(false)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Close search"
+                    )
+                }
             }
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = onSortClick,
-            icon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_sort),
-                    contentDescription = "Sort"
+            AnimatedVisibility(
+                visible = active,
+                enter = fadeIn() + slideInHorizontally(initialOffsetX = { it }),
+                exit = fadeOut() + slideOutHorizontally(targetOffsetX = { it }),
+                modifier = Modifier.weight(1f)
+            ) {
+                TextField(
+                    value = query,
+                    onValueChange = onQueryChange,
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = { onSearch(query) }
+                    ),
+                    singleLine = true,
+                    placeholder = {
+                        Text(text = "Search")
+                    },
+                    shape = RoundedCornerShape(40),
+                    colors = OutlinedTextFieldDefaults.colors(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 20.dp)
                 )
-            },
-            label = {
-                Text(text = "Sort")
             }
-        )
+            AnimatedVisibility(
+                visible = !active,
+                enter = fadeIn() + slideInHorizontally(),
+                exit = fadeOut() + slideOutHorizontally()
+            ) {
+                IconButton(
+                    onClick = {
+                        onActiveChange(true)
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Search,
+                        contentDescription = "Open search"
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun SearchPreview() {
+    Column {
+        CompactProgressScreen(studentList = studentListTest)
     }
 }
 
@@ -271,9 +227,37 @@ private fun ProgressBottomBar(
 private fun CompactProgressScreen(
     studentList: List<StudentEntity>
 ) {
+    val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val query = rememberSaveable {
+        mutableStateOf("")
+    }
+    val active = rememberSaveable {
+        mutableStateOf(false)
+    }
+    CustomSearchBar(
+        query = query.value,
+        active = active.value,
+        onQueryChange = { query.value = it },
+        onSearch = {
+            keyboardController?.hide()
+        },
+        onActiveChange = {
+            active.value = it
+            if (!it) {
+                keyboardController?.hide()
+                scope.launch(Dispatchers.IO) {
+                    delay(300)
+                    query.value = ""
+                }
+            }
+        }
+    )
     StudentItemHeader()
     LazyColumn {
-        items(studentList.sortedByDescending { it.gradeGroup }) { student ->
+        items(
+            studentList.filter { it.studentName.contains(query.value, true) }
+        ) { student ->
             StudentItem(student = student)
         }
     }
@@ -311,6 +295,7 @@ private fun ExpandedProgressScreen(
 private fun StudentItemHeader(
     textStyle: TextStyle = MaterialTheme.typography.titleSmall
 ) {
+    val scoreWeight = 1f
     val primaryColor = MaterialTheme.colorScheme.primary
     Row(
         modifier = Modifier
@@ -320,7 +305,7 @@ private fun StudentItemHeader(
         Text(
             text = "ID",
             modifier = Modifier
-                .weight(1.4f)
+                .weight(1.3f)
                 .padding(5.dp),
             style = textStyle,
             textAlign = TextAlign.Center,
@@ -330,7 +315,7 @@ private fun StudentItemHeader(
         Text(
             text = "STUDENT NAME",
             modifier = Modifier
-                .weight(5.8f)
+                .weight(6f)
                 .padding(5.dp),
             style = textStyle,
             textAlign = TextAlign.Left,
@@ -339,7 +324,7 @@ private fun StudentItemHeader(
         )
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(0.5f)
                 .padding(5.dp)
         ) {
             "SEX".forEach {
@@ -355,7 +340,7 @@ private fun StudentItemHeader(
         }
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(scoreWeight)
                 .padding(5.dp)
         ) {
             "ART".forEach {
@@ -371,7 +356,7 @@ private fun StudentItemHeader(
         }
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(scoreWeight)
                 .padding(5.dp)
         ) {
             "CHI".forEach {
@@ -387,7 +372,7 @@ private fun StudentItemHeader(
         }
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(scoreWeight)
                 .padding(5.dp)
         ) {
             "ENG".forEach {
@@ -403,7 +388,7 @@ private fun StudentItemHeader(
         }
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(scoreWeight)
                 .padding(5.dp)
         ) {
             "MAT".forEach {
@@ -419,7 +404,7 @@ private fun StudentItemHeader(
         }
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(scoreWeight)
                 .padding(5.dp)
         ) {
             "P/S".forEach {
@@ -435,7 +420,7 @@ private fun StudentItemHeader(
         }
         Column(
             modifier = Modifier
-                .weight(1f)
+                .weight(scoreWeight)
                 .padding(5.dp)
         ) {
             "SES".forEach {
@@ -451,7 +436,7 @@ private fun StudentItemHeader(
         }
         Column(
             modifier = Modifier
-                .weight(1.8f)
+                .weight(1.3f)
                 .padding(5.dp)
         ) {
             "TOT".forEach {
@@ -483,80 +468,80 @@ private fun StudentItem(
     student: StudentEntity,
     textStyle: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
+    val modifier = Modifier.fillMaxWidth()
+    val scoreWeight = 1f
     val totalScore = getTotalScore(student)
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .padding(5.dp)
     ) {
         Text(
             text = student.studentId.toString(),
-            modifier = Modifier
-                .weight(1.4f)
-                .padding(5.dp, 0.dp),
+            modifier = modifier
+                .weight(1.2f),
             style = textStyle,
             textAlign = TextAlign.Center
         )
         Text(
             text = student.studentName,
-            modifier = Modifier
-                .weight(5.8f),
+            modifier = modifier
+                .weight(6f),
             style = textStyle,
             textAlign = TextAlign.Start
         )
         Text(
             text = student.gender,
-            modifier = Modifier
-                .weight(1f),
+            modifier = modifier
+                .weight(0.7f),
             style = textStyle,
             textAlign = TextAlign.Center
         )
         Text(
             text = student.arts.toString(),
-            modifier = Modifier
-                .weight(1f),
+            modifier = modifier
+                .weight(scoreWeight),
             style = textStyle,
             textAlign = TextAlign.Center
         )
         Text(
             text = student.chichewa.toString(),
-            modifier = Modifier
-                .weight(1f),
+            modifier = modifier
+                .weight(scoreWeight),
             style = textStyle,
             textAlign = TextAlign.Center
         )
         Text(
             text = student.english.toString(),
-            modifier = Modifier
-                .weight(1f),
+            modifier = modifier
+                .weight(scoreWeight),
             style = textStyle,
             textAlign = TextAlign.Center
         )
         Text(
             text = student.maths.toString(),
-            modifier = Modifier
-                .weight(1f),
+            modifier = modifier
+                .weight(scoreWeight),
             style = textStyle,
             textAlign = TextAlign.Center
         )
         Text(
             text = student.science.toString(),
-            modifier = Modifier
-                .weight(1f),
+            modifier = modifier
+                .weight(scoreWeight),
             style = textStyle,
             textAlign = TextAlign.Center
         )
         Text(
             text = student.social.toString(),
-            modifier = Modifier
-                .weight(1f),
+            modifier = modifier
+                .weight(scoreWeight),
             style = textStyle,
             textAlign = TextAlign.Center
         )
         Text(
             text = totalScore.toString(),
-            modifier = Modifier
-                .weight(1.8f),
+            modifier = modifier
+                .weight(1.3f),
             style = textStyle,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold
@@ -894,13 +879,6 @@ fun ProgressExpandedPreview() {
     }
 }
 */
-
-/*val studentList = listOf(
-    StudentEntity(2, "Chisomo Psyelera", "M"),
-    StudentEntity(1, "Gift Psyelera", "M"),
-    StudentEntity(4, "Evanie Psyelera", "F", 56, 78, 47, 98, 5, 23),
-    StudentEntity(776, "Cynthia Psyelera", "F", 67, 87, 99, 54, 62, 34)
-)*/
 
 const val EXPANDED = "spec:id=reference_tablet,shape=Normal,width=841,height=800,unit=dp,dpi=240"
 const val MEDIUM = "spec:id=reference_phone,shape=Normal,width=601,height=800,unit=dp,dpi=420"

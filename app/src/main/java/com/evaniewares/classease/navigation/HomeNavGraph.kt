@@ -10,7 +10,6 @@ import com.evaniewares.classease.screens.AddEditStudentScreen
 import com.evaniewares.classease.screens.HomeScreen
 import com.evaniewares.classease.screens.NotificationScreen
 import com.evaniewares.classease.screens.ProgressScreen
-import com.evaniewares.classease.screens.ProgressScreenBackup
 import com.evaniewares.classease.screens.ScoringScreen
 import com.evaniewares.classease.screens.SettingScreen
 import com.evaniewares.classease.screens.StudentScreen
@@ -37,13 +36,11 @@ fun HomeNavGraph(
         }
         composable(route = HomeScreenRoutes.Scoring.route) {
             ScoringScreen(
-                navController = navController,
                 studentViewModel = studentViewModel
             )
         }
         composable(route = HomeScreenRoutes.Progress.route) {
             ProgressScreen(
-                navController = navController,
                 studentViewModel = studentViewModel
             )
         }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
@@ -29,14 +30,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
-import androidx.navigation.NavHostController
 import com.evaniewares.classease.domain.model.StudentEntity
 import com.evaniewares.classease.presentation.StudentViewModel
-import com.evaniewares.classease.utils.CustomTopBar
 import com.evaniewares.classease.utils.SubjectType
+import com.evaniewares.classease.utils.calculateGradeGroup
 import com.evaniewares.classease.utils.toastMsg
 import java.util.Locale
 
@@ -46,17 +48,15 @@ import java.util.Locale
  * Users selects the subject, enters student ID and score.
  * The save [Button] will be enabled when the user input is valid.
  *
- * @param navController the [NavHostController] that will help to go
- * back to the previous page.
  * @param studentViewModel the [StudentViewModel] instance that will help
  * to retrieve and update data from and to the database. It will also help data
  * to survive recompositions
  */
 @Composable
 fun ScoringScreen(
-    navController: NavHostController,
     studentViewModel: StudentViewModel
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     val context = LocalContext.current
     val studentToUpdate = remember {
         mutableStateOf<StudentEntity?>(null)
@@ -117,6 +117,9 @@ fun ScoringScreen(
                                 if (focusState.hasFocus && newEntry) {
                                     studentId = ""
                                 }
+                            },
+                            onDone = {
+                                keyboardController?.hide()
                             }
                         )
                         ScoringTextField(
@@ -130,6 +133,9 @@ fun ScoringScreen(
                                 if (focusState.hasFocus && newEntry) {
                                     score = ""
                                 }
+                            },
+                            onDone = {
+                                keyboardController?.hide()
                             }
                         )
                         Button(
@@ -142,7 +148,14 @@ fun ScoringScreen(
                                     )
                                     studentViewModel.updateStudent(
                                         newStudent.copy(
-                                            gradeGroup = newStudent.calculateGradeGroup()
+                                            gradeGroup = calculateGradeGroup(
+                                                newStudent.arts,
+                                                newStudent.chichewa,
+                                                newStudent.english,
+                                                newStudent.maths,
+                                                newStudent.science,
+                                                newStudent.social
+                                            )
                                         )
                                     ) { success ->
                                         if (success) {
@@ -300,7 +313,8 @@ private fun ScoringTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    onFocusChanged: (FocusState) -> Unit
+    onFocusChanged: (FocusState) -> Unit,
+    onDone: () -> Unit
 ) {
     TextField(
         value = value,
@@ -312,7 +326,11 @@ private fun ScoringTextField(
                 onFocusChanged(focusState)
             },
         keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = { onDone() }
         ),
         shape = RoundedCornerShape(5.dp),
         label = {

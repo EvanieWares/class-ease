@@ -20,25 +20,4 @@ data class StudentEntity(
     val social: Int = 0,
     @ColumnInfo(name = "grade_group", index = true)
     val gradeGroup: Int = 0
-) {
-    fun calculateGradeGroup(): Int {
-        return (
-                getGrade(arts) +
-                getGrade(chichewa) +
-                getGrade(english) +
-                getGrade(maths) +
-                getGrade(science) +
-                getGrade(social)
-                )
-    }
-
-    private fun getGrade(score: Int): Int {
-        return when {
-            score >= 80 -> 4
-            score >= 66 -> 3
-            score >= 56 -> 2
-            score >= 40 -> 1
-            else -> 0
-        }
-    }
-}
+)

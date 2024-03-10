@@ -12,6 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -22,6 +26,7 @@ import com.evaniewares.classease.domain.model.HomeBottomBarItem
 import com.evaniewares.classease.presentation.StudentViewModel
 import com.evaniewares.classease.ui.theme.AppColor
 import com.evaniewares.classease.ui.theme.ClassEaseTheme
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 /**
  * The app's main landing screen.
@@ -125,7 +130,12 @@ private fun RowScope.AddNavItem(
     )
 }
 
-@Preview(showSystemUi = true)
+@PreviewFontScale
+@PreviewScreenSizes
+@Preview(
+    name = "Main",
+    showSystemUi = true
+)
 @Composable
 fun HomePreview(){
     ClassEaseTheme {

@@ -23,12 +23,12 @@ interface StudentDao {
     @Query("SELECT * from students WHERE student_id = :studentId")
     suspend fun getStudentById(studentId: Long): StudentEntity?
 
-    @Query("SELECT * FROM students ORDER BY grade_group, english, maths, science DESC")
+    @Query("SELECT * FROM students ORDER BY grade_group DESC, english DESC, maths DESC, science DESC")
     fun getStudentsSortByGrade(): Flow<List<StudentEntity>>
 
     @Query("SELECT * FROM students ORDER BY student_id")
     fun getStudentsSortById(): Flow<List<StudentEntity>>
 
-    @Query("SELECT * FROM students ORDER BY arts + chichewa + english + maths + science + social, english, maths, science DESC")
+    @Query("SELECT * FROM students ORDER BY arts + chichewa + english + maths + science + social DESC, english DESC, maths DESC, science DESC")
     fun getStudentsSortByScore(): Flow<List<StudentEntity>>
 }

@@ -1,6 +1,5 @@
 package com.evaniewares.classease.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +48,12 @@ fun AddEditStudentScreen(
 ) {
     val context = LocalContext.current
     val studentState = studentViewModel.studentState.collectAsStateWithLifecycle().value
+
+    DisposableEffect(Unit) {
+        onDispose {
+            studentViewModel.onAction(StudentViewModel.UserAction.EditStudentDialogDismiss)
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -106,9 +112,6 @@ fun AddEditStudentScreen(
                     )
                 }
             )
-        }
-        BackHandler {
-            studentViewModel.onAction(StudentViewModel.UserAction.EditStudentDialogDismiss)
         }
     }
 }
@@ -218,14 +221,11 @@ private fun CustomAppBar(
                                 )
                             )
                         } else {
-                            val studentId = if (state.studentId.isBlank()){
-                                0L
-                            } else {
-                                state.studentId.toLong()
-                            }
                             onSaveStudent(
                                 StudentEntity(
-                                    studentId = studentId,
+                                    studentId = state.studentId
+                                        .trim()
+                                        .toLong(),
                                     studentName = state.studentName.trim(),
                                     gender = state.gender.trim()
                                 )
@@ -275,13 +275,16 @@ private fun RowGenderSection(
 }
 
 private fun validateInputs(name: String, studentId: String, gender: String): Boolean {
-    if (name.isBlank() || gender.isBlank()) {
+    if (name.isBlank() || studentId.isBlank() || gender.isBlank()) {
+        return false
+    }
+    if (studentId.trim() == "0") {
         return false
     }
     if (!"MFO".contains(gender.trim())) {
         return false
     }
-    return studentId.isBlank() || studentId.isDigitsOnly()
+    return studentId.trim().isDigitsOnly()
 }
 
 @Composable
