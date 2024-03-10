@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +28,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.evaniewares.classease.domain.model.StudentEntity
 import com.evaniewares.classease.navigation.HomeScreenRoutes
+import com.evaniewares.classease.tests.studentListTest
 import com.evaniewares.classease.ui.theme.ClassEaseTheme
 
 /**
@@ -39,6 +42,7 @@ import com.evaniewares.classease.ui.theme.ClassEaseTheme
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val scrollState = rememberScrollState()
+    val studentList = studentListTest
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -60,14 +64,38 @@ fun HomeScreen(navController: NavHostController) {
                     navController.navigate(HomeScreenRoutes.Notifications.route)
                 }
             )
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+            Enrollment(studentList = studentList)
+        }
+    }
+}
+
+@Composable
+fun Enrollment(
+    studentList: List<StudentEntity>
+) {
+    val boysList = studentList.filter { it.gender == "M" }
+    val girlsList = studentList.filter { it.gender == "F" }
+    val otherList = studentList.filter { it.gender == "O" }
+
+    Box(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "Enrollment",
+                style = MaterialTheme.typography.titleMedium
+            )
+            HorizontalDivider()
+            Row(
+                modifier = Modifier.padding(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(30.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Home Screen",
-                    style = MaterialTheme.typography.titleLarge
-                )
+                Text(text = "Boys: ${boysList.size}")
+                Text(text = "Girls: ${girlsList.size}")
+                Text(text = "Other: ${otherList.size}")
             }
         }
     }
@@ -132,7 +160,7 @@ private fun ScrollableTopBar(
 }
 
 @Preview(
-    //showSystemUi = true
+    showSystemUi = true
 )
 @Composable
 fun HomePreview() {
