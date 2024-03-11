@@ -157,8 +157,7 @@ private fun AddEdit(
                 value = state.studentId,
                 placeHolder = "STUDENT ID",
                 onValueChange = onIdChanged,
-                keyboardType = KeyboardType.Decimal,
-                supportingText = "If you leave empty or enter 0, the student ID will be auto-generated"
+                keyboardType = KeyboardType.Decimal
             )
         }
         EditStudentTextField(

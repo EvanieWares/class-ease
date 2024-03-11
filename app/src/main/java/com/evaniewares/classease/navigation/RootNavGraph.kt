@@ -20,5 +20,8 @@ fun RootNavGraph(
         composable(route = Graph.HOME) {
             HomeActivity(studentViewModel = studentViewModel)
         }
+        composable(route = Graph.SPLASH) {
+            HomeActivity(studentViewModel = studentViewModel)
+        }
     }
 }

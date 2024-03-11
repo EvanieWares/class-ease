@@ -1,6 +1,7 @@
 package com.evaniewares.classease.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,7 +27,11 @@ fun HomeNavGraph(
         startDestination = HomeScreenRoutes.Home.route
     ) {
         composable(route = HomeScreenRoutes.Home.route) {
-            HomeScreen(navController)
+            val studentList = studentViewModel.studentList.collectAsStateWithLifecycle().value
+            HomeScreen(
+                navController = navController,
+                studentList = studentList
+            )
         }
         composable(route = HomeScreenRoutes.Students.route) {
             StudentScreen(
