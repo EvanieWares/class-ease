@@ -102,6 +102,14 @@ class StudentViewModel @Inject constructor(
         }
     }
 
+    fun onFirstLaunch() {
+        _studentState.update {
+            it.copy(
+                firstLaunch = false
+            )
+        }
+    }
+
     fun onAction(userAction: UserAction) {
         when (userAction) {
             UserAction.AddButtonClicked -> {
@@ -202,7 +210,8 @@ class StudentViewModel @Inject constructor(
         val studentId: String = "",
         val studentName: String = "",
         val gender: String = "",
-        val selectedStudent: StudentEntity? = null
+        val selectedStudent: StudentEntity? = null,
+        val firstLaunch: Boolean = true
     )
 
     sealed class UserAction {

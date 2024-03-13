@@ -1,8 +1,10 @@
 package com.evaniewares.classease.screens
 
-import android.graphics.Paint
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,48 +29,53 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewFontScale
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.evaniewares.classease.R
-import com.evaniewares.classease.domain.model.PieChartItem
+import com.evaniewares.classease.domain.model.ArcData
+import com.evaniewares.classease.domain.model.PieData
 import com.evaniewares.classease.domain.model.StudentEntity
+import com.evaniewares.classease.domain.model.SubjectPieData
 import com.evaniewares.classease.navigation.HomeScreenRoutes
 import com.evaniewares.classease.tests.studentListTest
-import com.evaniewares.classease.ui.theme.AppColor
-import com.evaniewares.classease.ui.theme.Blue
+import com.evaniewares.classease.ui.theme.Blue300
 import com.evaniewares.classease.ui.theme.ClassEaseTheme
-import com.evaniewares.classease.ui.theme.DangerColor
-import com.evaniewares.classease.ui.theme.Grey
-import com.evaniewares.classease.ui.theme.Pink40
-import com.evaniewares.classease.ui.theme.Purple40
-import com.evaniewares.classease.ui.theme.White
-import com.evaniewares.classease.ui.theme.Yellow
-import kotlin.math.PI
-import kotlin.math.atan2
-import kotlin.math.roundToInt
+import com.evaniewares.classease.ui.theme.Cyan100
+import com.evaniewares.classease.ui.theme.Cyan200
+import com.evaniewares.classease.ui.theme.Cyan300
+import com.evaniewares.classease.ui.theme.Cyan400
+import com.evaniewares.classease.ui.theme.Cyan500
+import com.evaniewares.classease.ui.theme.Green100
+import com.evaniewares.classease.ui.theme.Green200
+import com.evaniewares.classease.ui.theme.Green300
+import com.evaniewares.classease.ui.theme.Green400
+import com.evaniewares.classease.ui.theme.Green500
+import com.evaniewares.classease.ui.theme.Orange100
+import com.evaniewares.classease.ui.theme.Orange200
+import com.evaniewares.classease.ui.theme.Orange300
+import com.evaniewares.classease.ui.theme.Orange400
+import com.evaniewares.classease.ui.theme.Orange500
+import com.evaniewares.classease.ui.theme.Purple100
+import com.evaniewares.classease.ui.theme.Purple200
+import com.evaniewares.classease.ui.theme.Purple300
+import com.evaniewares.classease.ui.theme.Purple400
+import com.evaniewares.classease.ui.theme.Purple500
+import com.evaniewares.classease.ui.theme.Red100
+import com.evaniewares.classease.ui.theme.Red200
+import com.evaniewares.classease.ui.theme.Red300
+import com.evaniewares.classease.ui.theme.Red400
+import com.evaniewares.classease.ui.theme.Red500
+import com.evaniewares.classease.utils.SubjectType
+import kotlinx.coroutines.launch
 
 /**
  * App's home screen.
@@ -79,9 +86,20 @@ import kotlin.math.roundToInt
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    studentList: List<StudentEntity>
+    studentList: List<StudentEntity>,
+    firstLaunch: Boolean,
+    onFirstLaunch: () -> Unit
 ) {
     val scrollState = rememberScrollState()
+
+    val subjectPieDataList = listOf(
+        SubjectPieData("English", getOrangeColorFamily(), SubjectType.ENGLISH),
+        SubjectPieData("Chichewa", getGreenColorFamily(), SubjectType.CHICHEWA),
+        SubjectPieData("Mathematics", getRedColorFamily(), SubjectType.MATHEMATICS),
+        SubjectPieData("Primary Science", getCyanColorFamily(), SubjectType.SCIENCE),
+        SubjectPieData("Social & BK/RE", getPurpleColorFamily(), SubjectType.SOCIAL),
+        SubjectPieData("Arts & Life Skills", getGreenColorFamily(), SubjectType.ARTS),
+    )
 
     Surface(
         modifier = Modifier.fillMaxSize()
@@ -105,15 +123,29 @@ fun HomeScreen(
             )
             Enrollment(studentList = studentList)
             Spacer(modifier = Modifier.padding(10.dp))
-            OverallPerformance(studentList = studentList)
+            OverallPerformance(
+                studentList = studentList,
+                animate = firstLaunch
+            )
+            subjectPieDataList.forEach { subjectPieData ->
+                Performance(
+                    studentList = studentList,
+                    title = subjectPieData.title,
+                    colorFamily = subjectPieData.colorFamily,
+                    subjectType = subjectPieData.subjectType
+                )
+            }
         }
+        onFirstLaunch()
     }
 }
 
 @Composable
 private fun OverallPerformance(
-    studentList: List<StudentEntity>
+    studentList: List<StudentEntity>,
+    animate: Boolean
 ) {
+    val size = 250.dp
     val artsPassed = studentList.filter { it.arts > 39 }.size
     val chichewaPassed = studentList.filter { it.chichewa > 39 }.size
     val englishPassed = studentList.filter { it.english > 39 }.size
@@ -121,16 +153,15 @@ private fun OverallPerformance(
     val sciencePassed = studentList.filter { it.science > 39 }.size
     val socialPassed = studentList.filter { it.social > 39 }.size
 
-    val pieChartItems = listOf(
-        PieChartItem(AppColor, chichewaPassed, "Chichewa", false),
-        PieChartItem(Purple40, artsPassed, "Arts", false),
-        PieChartItem(DangerColor, englishPassed, "English", false),
-        PieChartItem(Yellow, sciencePassed, "Science", false),
-        PieChartItem(Blue, socialPassed, "Social", false),
-        PieChartItem(Pink40, mathsPassed, "Maths", false)
+    val pieData = listOf(
+        PieData(Green300, chichewaPassed, "Chichewa"),
+        PieData(Blue300, artsPassed, "Arts"),
+        PieData(Orange300, englishPassed, "English"),
+        PieData(Cyan300, sciencePassed, "Science"),
+        PieData(Purple300, socialPassed, "Social"),
+        PieData(Red200, mathsPassed, "Maths")
 
     )
-
 
     Box(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -140,217 +171,150 @@ private fun OverallPerformance(
                 text = stringResource(R.string.overall_performance),
                 style = MaterialTheme.typography.titleMedium
             )
-            HorizontalDivider()
+            HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp))
             PieChart(
-                input = pieChartItems,
-                modifier = Modifier.size(350.dp),
-                centerText = stringResource(R.string.overall_performance),
-                radius = 350f,
-                innerRadius = 175f
+                pieDataList = pieData,
+                size = size,
+                animate = animate
             )
+            Box(modifier = Modifier.padding(10.dp)) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    pieData.map {
+                        LegendRow(
+                            pieData = it,
+                            width = size,
+                            boxSize = 24.dp,
+                            textStyle = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+            }
+
+            HorizontalDivider()
+        }
+    }
+}
+
+@Composable
+private fun Performance(
+    studentList: List<StudentEntity>,
+    title: String,
+    colorFamily: List<Color>,
+    subjectType: SubjectType
+) {
+    val pieDataList = getFiltered(colorFamily, studentList, subjectType)
+
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.padding(5.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                PieChart(
+                    pieDataList = pieDataList,
+                    size = 200.dp
+                )
+                Column {
+                    pieDataList.map {
+                        LegendRow(pieData = it)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.padding(5.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium
+            )
+            HorizontalDivider()
         }
     }
 }
 
 /**
- * Displays a PieChart
+ * Displays a PieChart.
  */
 @Composable
 private fun PieChart(
-    input: List<PieChartItem>,
+    pieDataList: List<PieData>,
+    size: Dp,
     modifier: Modifier = Modifier,
-    radius: Float = 500f,
-    innerRadius: Float = 250f,
-    transparentWidth: Float = 70f,
-    centerText: String = ""
+    animate: Boolean = false
 ) {
-    var circleCenter by remember {
-        mutableStateOf(Offset.Zero)
+    val localModifier = modifier.size(size)
+    val total = pieDataList.fold(0f) { acc, pieData ->
+        acc + pieData.value
+    }.div(360)
+    var currentSum = 0
+    val arcs = pieDataList.map {
+        currentSum += it.value
+        ArcData(
+            targetSweepAngle = currentSum / total,
+            color = it.color,
+            animation = Animatable(0f)
+        )
     }
-    var inputList by remember {
-        mutableStateOf(input)
-    }
-    var isCenterTapped by remember {
-        mutableStateOf(false)
-    }
 
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.Center
-    ) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(key1 = true) {
-                    detectTapGestures(
-                        onTap = { offset ->
-                            val tapAngleInDegrees = (-atan2(
-                                x = circleCenter.y - offset.y,
-                                y = circleCenter.x - offset.x
-                            ) * (180f / PI).toFloat() - 90f).mod(360f)
-                            val centerClicked = if (tapAngleInDegrees < 90) {
-                                offset.x < circleCenter.x + innerRadius && offset.y < circleCenter.y + innerRadius
-                            } else if (tapAngleInDegrees < 180) {
-                                offset.x > circleCenter.x - innerRadius && offset.y < circleCenter.y + innerRadius
-                            } else if (tapAngleInDegrees < 270) {
-                                offset.x > circleCenter.x - innerRadius && offset.y > circleCenter.y - innerRadius
-                            } else {
-                                offset.x < circleCenter.x + innerRadius && offset.y > circleCenter.y - innerRadius
-                            }
-
-                            if (centerClicked) {
-                                inputList = inputList.map {
-                                    it.copy(isTapped = !isCenterTapped)
-                                }
-                                isCenterTapped = !isCenterTapped
-                            } else {
-                                val anglePerValue = 360 / input.sumOf {
-                                    it.value
-                                }
-                                var currAngle = 0f
-                                inputList.forEach { pieChartItem ->
-                                    currAngle += pieChartItem.value * anglePerValue
-                                    if (tapAngleInDegrees < currAngle) {
-                                        val description = pieChartItem.description
-                                        inputList = inputList.map {
-                                            if (description == it.description) {
-                                                it.copy(isTapped = !it.isTapped)
-                                            } else {
-                                                it.copy(isTapped = false)
-                                            }
-                                        }
-                                        return@detectTapGestures
-                                    }
-                                }
-                            }
-                        }
+    LaunchedEffect(key1 = arcs) {
+        arcs.map {
+            launch {
+                it.animation.animateTo(
+                    targetValue = if (it.targetSweepAngle.isNaN()) 0f else it.targetSweepAngle,
+                    animationSpec = tween(
+                        durationMillis = 3000,
+                        easing = FastOutSlowInEasing
                     )
-                },
-        ) {
-            val width = size.width
-            val height = size.height
-            val totalValue = input.sumOf { it.value }
-            val anglePerValue = 360f / totalValue
-            var currentStartAngle = 0f
-            circleCenter = Offset(x = width / 2f, y = height / 2f)
-
-            inputList.forEach { pieChartItem ->
-                val scale = if (pieChartItem.isTapped) 1.1f else 1.0f
-                val angleToDraw = pieChartItem.value * anglePerValue
-                scale(scale) {
-                    drawArc(
-                        color = pieChartItem.color,
-                        startAngle = currentStartAngle,
-                        sweepAngle = angleToDraw,
-                        useCenter = true,
-                        size = Size(
-                            width = radius * 2f,
-                            height = radius * 2f
-                        ),
-                        topLeft = Offset(
-                            (width - radius * 2f) / 2f,
-                            (height - radius * 2f) / 2f
-                        )
-                    )
-                    currentStartAngle += angleToDraw
-                }
-                var rotateAngle = currentStartAngle - angleToDraw / 2f - 90f
-                var factor = 1f
-                if (rotateAngle > 90f) {
-                    rotateAngle = (rotateAngle + 180).mod(360f)
-                    factor = -0.92f
-                }
-
-                val percentage = (pieChartItem.value / totalValue.toFloat() * 100).roundToInt()
-
-                drawContext.canvas.nativeCanvas.apply {
-                    if (percentage > 3) {
-                        rotate(rotateAngle) {
-                            drawText(
-                                "$percentage%",
-                                circleCenter.x,
-                                circleCenter.y + (radius - (radius - innerRadius) / 2f) * factor,
-                                Paint().apply {
-                                    textSize = 12.sp.toPx()
-                                    textAlign = Paint.Align.CENTER
-                                    color = White.toArgb()
-                                }
-                            )
-                        }
-                    }
-                }
-                if (pieChartItem.isTapped) {
-                    val tabRotation = currentStartAngle - angleToDraw - 90f
-                    rotate(tabRotation) {
-                        drawRoundRect(
-                            topLeft = circleCenter,
-                            size = Size(width = 12f, height = radius * 1.2f),
-                            color = Grey,
-                            cornerRadius = CornerRadius(15f, 15f)
-                        )
-                    }
-                    rotate(tabRotation + angleToDraw) {
-                        drawRoundRect(
-                            topLeft = circleCenter,
-                            size = Size(width = 12f, height = radius * 1.2f),
-                            color = Grey,
-                            cornerRadius = CornerRadius(15f, 15f)
-                        )
-                    }
-                    rotate(rotateAngle) {
-                        drawContext.canvas.nativeCanvas.apply {
-                            drawText(
-                                "${pieChartItem.description}: ${pieChartItem.value}",
-                                circleCenter.x,
-                                circleCenter.y + radius * 1.3f * factor,
-                                Paint().apply {
-                                    textSize = 16.sp.toPx()
-                                    textAlign = Paint.Align.CENTER
-                                    color = pieChartItem.color.toArgb()
-                                    isFakeBoldText = true
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-
-            if (inputList.first().isTapped) {
-                rotate(-90f) {
-                    drawRoundRect(
-                        topLeft = circleCenter,
-                        size = Size(width = 12f, height = radius * 1.2f),
-                        color = Grey,
-                        cornerRadius = CornerRadius(15f, 15f)
-                    )
-                }
-            }
-
-            drawContext.canvas.nativeCanvas.apply {
-                drawCircle(
-                    circleCenter.x,
-                    circleCenter.y,
-                    innerRadius,
-                    Paint().apply {
-                        color = White.copy(alpha = 0.6f).toArgb()
-                        setShadowLayer(10f, 0f, 0f, Grey.toArgb())
-                    }
                 )
             }
+        }
+    }
 
-            drawCircle(
-                color = White.copy(0.2f),
-                radius = innerRadius + transparentWidth / 2f
+    Canvas(modifier = localModifier) {
+        arcs.reversed().map {
+            drawArc(
+                startAngle = -90f,
+                sweepAngle = if (animate) it.animation.value else it.targetSweepAngle,
+                color = it.color,
+                useCenter = true
             )
         }
+    }
+}
+
+@Composable
+private fun LegendRow(
+    pieData: PieData,
+    boxSize: Dp = 14.dp,
+    width: Dp = 110.dp,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall
+) {
+    Row(
+        modifier = Modifier.width(width),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(modifier = Modifier
+                    .size(boxSize)
+                    .background(pieData.color)
+                )
+                Text(
+                    text = pieData.description,
+                    style = textStyle
+                )
+            }
+        }
         Text(
-            text = centerText,
-            modifier = Modifier
-                .width(Dp(innerRadius / 1.5f))
-                .padding(5.dp),
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center
+            text = pieData.value.toString(),
+            style = textStyle
         )
     }
 }
@@ -460,14 +424,138 @@ private fun ScrollableTopBar(
     }
 }
 
-@PreviewFontScale
-@PreviewScreenSizes
-@Preview(
-    showSystemUi = true
-)
+private fun getFiltered(
+    colorFamily: List<Color>,
+    studentList: List<StudentEntity>,
+    subjectType: SubjectType
+): List<PieData> {
+    val excellent: Int
+    val vGood: Int
+    val good: Int
+    val pass: Int
+    val fail: Int
+
+    when (subjectType) {
+        SubjectType.ARTS -> {
+            excellent = studentList.filter { it.arts > 79 }.size
+            vGood = studentList.filter { it.arts in 66..79 }.size
+            good = studentList.filter { it.arts in 56..65 }.size
+            pass = studentList.filter { it.arts in 40..55 }.size
+            fail = studentList.filter { it.arts < 40 }.size
+        }
+
+        SubjectType.CHICHEWA -> {
+            excellent = studentList.filter { it.chichewa > 79 }.size
+            vGood = studentList.filter { it.chichewa in 66..79 }.size
+            good = studentList.filter { it.chichewa in 56..65 }.size
+            pass = studentList.filter { it.chichewa in 40..55 }.size
+            fail = studentList.filter { it.chichewa < 40 }.size
+        }
+
+        SubjectType.ENGLISH -> {
+            excellent = studentList.filter { it.english > 79 }.size
+            vGood = studentList.filter { it.english in 66..79 }.size
+            good = studentList.filter { it.english in 56..65 }.size
+            pass = studentList.filter { it.english in 40..55 }.size
+            fail = studentList.filter { it.english < 40 }.size
+        }
+
+        SubjectType.MATHEMATICS -> {
+            excellent = studentList.filter { it.maths > 79 }.size
+            vGood = studentList.filter { it.maths in 66..79 }.size
+            good = studentList.filter { it.maths in 56..65 }.size
+            pass = studentList.filter { it.maths in 40..55 }.size
+            fail = studentList.filter { it.maths < 40 }.size
+        }
+
+        SubjectType.SCIENCE -> {
+            excellent = studentList.filter { it.science > 79 }.size
+            vGood = studentList.filter { it.science in 66..79 }.size
+            good = studentList.filter { it.science in 56..65 }.size
+            pass = studentList.filter { it.science in 40..55 }.size
+            fail = studentList.filter { it.science < 40 }.size
+        }
+
+        SubjectType.SOCIAL -> {
+            excellent = studentList.filter { it.social > 79 }.size
+            vGood = studentList.filter { it.social in 66..79 }.size
+            good = studentList.filter { it.social in 56..65 }.size
+            pass = studentList.filter { it.social in 40..55 }.size
+            fail = studentList.filter { it.social < 40 }.size
+        }
+    }
+
+    return listOf(
+        PieData(
+            color = colorFamily[4],
+            value = excellent,
+            description = "Excellent"
+        ),
+        PieData(
+            color = colorFamily[3],
+            value = vGood,
+            description = "Very good"
+        ),
+        PieData(
+            color = colorFamily[2],
+            value = good,
+            description = "Good"
+        ),
+        PieData(
+            color = colorFamily[1],
+            value = pass,
+            description = "Pass"
+        ),
+        PieData(
+            color = colorFamily[0],
+            value = fail,
+            description = "Fail"
+        )
+    )
+}
+
+private fun getGreenColorFamily(): List<Color> {
+    return listOf(
+        Green100, Green200, Green300, Green400, Green500
+    )
+}
+
+private fun getRedColorFamily(): List<Color> {
+    return listOf(
+        Red100, Red200, Red300, Red400, Red500
+    )
+}
+
+private fun getCyanColorFamily(): List<Color> {
+    return listOf(
+        Cyan100, Cyan200, Cyan300, Cyan400, Cyan500
+    )
+}
+
+private fun getPurpleColorFamily(): List<Color> {
+    return listOf(
+        Purple100, Purple200, Purple300, Purple400, Purple500
+    )
+}
+
+private fun getOrangeColorFamily(): List<Color> {
+    return listOf(
+        Orange100, Orange200, Orange300, Orange400, Orange500
+    )
+}
+
+@Preview
 @Composable
 fun HomePreview() {
     ClassEaseTheme(darkTheme = false) {
-        HomeScreen(rememberNavController(), studentListTest)
+        Surface {
+            HomeScreen(
+                navController = rememberNavController(),
+                studentList = studentListTest,
+                firstLaunch = true
+            ) {
+                // studentViewModel.onFirstLaunch()
+            }
+        }
     }
 }

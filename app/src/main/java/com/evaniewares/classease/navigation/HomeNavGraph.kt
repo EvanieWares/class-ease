@@ -28,10 +28,14 @@ fun HomeNavGraph(
     ) {
         composable(route = HomeScreenRoutes.Home.route) {
             val studentList = studentViewModel.studentList.collectAsStateWithLifecycle().value
+            val state = studentViewModel.studentState.collectAsStateWithLifecycle().value
             HomeScreen(
                 navController = navController,
-                studentList = studentList
-            )
+                studentList = studentList,
+                firstLaunch = state.firstLaunch
+            ) {
+                studentViewModel.onFirstLaunch()
+            }
         }
         composable(route = HomeScreenRoutes.Students.route) {
             StudentScreen(
