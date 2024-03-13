@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.evaniewares.classease.presentation.StudentViewModel
+import com.evaniewares.classease.screens.StartScreen
 import com.evaniewares.classease.utils.Graph
 
 @Composable
@@ -21,7 +22,7 @@ fun RootNavGraph(
             HomeActivity(studentViewModel = studentViewModel)
         }
         composable(route = Graph.SPLASH) {
-            HomeActivity(studentViewModel = studentViewModel)
+            StartScreen(navController)
         }
     }
 }
