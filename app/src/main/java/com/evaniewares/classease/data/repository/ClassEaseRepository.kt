@@ -11,7 +11,11 @@ class ClassEaseRepository(
 
     suspend fun updateStudent(studentEntity: StudentEntity) = studentDao.updateStudent(studentEntity)
 
+    suspend fun updateAllStudents(students: List<StudentEntity>) = studentDao.updateAllStudents(students)
+
     suspend fun deleteStudent(studentEntity: StudentEntity): Int = studentDao.deleteStudent(studentEntity)
+
+    suspend fun deleteAllStudents(students: List<StudentEntity>): Int = studentDao.deleteAllStudents(students)
 
     suspend fun getStudentById(studentId: Long): StudentEntity? = studentDao.getStudentById(studentId)
 

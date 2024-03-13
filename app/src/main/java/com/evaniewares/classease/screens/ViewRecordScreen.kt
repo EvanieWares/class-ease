@@ -87,7 +87,11 @@ fun ProgressScreen(
         }
     }
 
-    Surface {
+    Surface(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 80.dp)
+    ) {
         Scaffold(
             modifier = Modifier.fillMaxSize()
         ) { paddingValues ->

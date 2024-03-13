@@ -77,12 +77,16 @@ fun AddEditStudentScreen(
                             }
                         }
                     } else {
-                        studentViewModel.insertStudent(student) { success ->
+                        studentViewModel.insertStudent(student) { success, limitReached ->
                             if (success) {
                                 studentViewModel.onAction(StudentViewModel.UserAction.OnSaveStudent)
                                 toastMsg(context, "Saved!")
                             } else {
-                                toastMsg(context, "Unable to save. Try again!")
+                                if (limitReached){
+                                    toastMsg(context, "Limit reached! Get ClassEase Pro")
+                                } else {
+                                    toastMsg(context, "Unable to save. Try again!")
+                                }
                             }
                         }
                     }

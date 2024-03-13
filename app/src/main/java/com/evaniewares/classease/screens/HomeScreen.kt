@@ -1,7 +1,7 @@
 package com.evaniewares.classease.screens
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -30,9 +30,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -75,20 +82,18 @@ import com.evaniewares.classease.ui.theme.Red300
 import com.evaniewares.classease.ui.theme.Red400
 import com.evaniewares.classease.ui.theme.Red500
 import com.evaniewares.classease.utils.SubjectType
-import kotlinx.coroutines.launch
 
 /**
  * App's home screen.
  *
  * @param navController the [NavHostController] that will help to go
  * back to the previous page.
+ * @param studentList the list of all students
  */
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    studentList: List<StudentEntity>,
-    firstLaunch: Boolean,
-    onFirstLaunch: () -> Unit
+    studentList: List<StudentEntity>
 ) {
     val scrollState = rememberScrollState()
 
@@ -102,7 +107,9 @@ fun HomeScreen(
     )
 
     Surface(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 80.dp)
     ) {
         Column(
             modifier = Modifier
@@ -124,8 +131,7 @@ fun HomeScreen(
             Enrollment(studentList = studentList)
             Spacer(modifier = Modifier.padding(10.dp))
             OverallPerformance(
-                studentList = studentList,
-                animate = firstLaunch
+                studentList = studentList
             )
             subjectPieDataList.forEach { subjectPieData ->
                 Performance(
@@ -136,16 +142,13 @@ fun HomeScreen(
                 )
             }
         }
-        onFirstLaunch()
     }
 }
 
 @Composable
 private fun OverallPerformance(
-    studentList: List<StudentEntity>,
-    animate: Boolean
+    studentList: List<StudentEntity>
 ) {
-    val size = 250.dp
     val artsPassed = studentList.filter { it.arts > 39 }.size
     val chichewaPassed = studentList.filter { it.chichewa > 39 }.size
     val englishPassed = studentList.filter { it.english > 39 }.size
@@ -171,27 +174,8 @@ private fun OverallPerformance(
                 text = stringResource(R.string.overall_performance),
                 style = MaterialTheme.typography.titleMedium
             )
-            HorizontalDivider(modifier = Modifier.padding(bottom = 10.dp))
-            PieChart(
-                pieDataList = pieData,
-                size = size,
-                animate = animate
-            )
-            Box(modifier = Modifier.padding(10.dp)) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    pieData.map {
-                        LegendRow(
-                            pieData = it,
-                            width = size,
-                            boxSize = 24.dp,
-                            textStyle = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
-            }
-
+            HorizontalDivider(modifier = Modifier.padding(bottom = 20.dp))
+            OverallPieChart(pieDataList = pieData)
             HorizontalDivider()
         }
     }
@@ -217,7 +201,7 @@ private fun Performance(
             ) {
                 PieChart(
                     pieDataList = pieDataList,
-                    size = 200.dp
+                    size = 180.dp
                 )
                 Column {
                     pieDataList.map {
@@ -237,13 +221,16 @@ private fun Performance(
 
 /**
  * Displays a PieChart.
+ *
+ * @param pieDataList a list of [PieData] items to display on the pie chart
+ * @param size the size of the pie chart
+ * @param modifier [Modifier]
  */
 @Composable
 private fun PieChart(
     pieDataList: List<PieData>,
     size: Dp,
-    modifier: Modifier = Modifier,
-    animate: Boolean = false
+    modifier: Modifier = Modifier
 ) {
     val localModifier = modifier.size(size)
     val total = pieDataList.fold(0f) { acc, pieData ->
@@ -254,30 +241,15 @@ private fun PieChart(
         currentSum += it.value
         ArcData(
             targetSweepAngle = currentSum / total,
-            color = it.color,
-            animation = Animatable(0f)
+            color = it.color
         )
-    }
-
-    LaunchedEffect(key1 = arcs) {
-        arcs.map {
-            launch {
-                it.animation.animateTo(
-                    targetValue = if (it.targetSweepAngle.isNaN()) 0f else it.targetSweepAngle,
-                    animationSpec = tween(
-                        durationMillis = 3000,
-                        easing = FastOutSlowInEasing
-                    )
-                )
-            }
-        }
     }
 
     Canvas(modifier = localModifier) {
         arcs.reversed().map {
             drawArc(
                 startAngle = -90f,
-                sweepAngle = if (animate) it.animation.value else it.targetSweepAngle,
+                sweepAngle = it.targetSweepAngle,
                 color = it.color,
                 useCenter = true
             )
@@ -285,6 +257,104 @@ private fun PieChart(
     }
 }
 
+@Composable
+private fun OverallPieChart(
+    pieDataList: List<PieData>,
+    radiusOuter: Dp = 90.dp,
+    chartBarWidth: Dp = 20.dp,
+    animDuration: Int = 1000
+) {
+    val totalSum = pieDataList.sumOf { it.value }
+
+    val arcs = pieDataList.map {
+        ArcData(
+            targetSweepAngle = 360 * it.value.toFloat() / totalSum.toFloat(),
+            color = it.color
+        )
+    }
+
+    var animationPlayed by remember {
+        mutableStateOf(false)
+    }
+
+    var lastValue = 0f
+
+    val animateSize by animateFloatAsState(
+        targetValue = if (animationPlayed) radiusOuter.value * 2f else 0f,
+        animationSpec = tween(
+            durationMillis = animDuration,
+            delayMillis = 0,
+            easing = LinearOutSlowInEasing
+        ),
+        label = "Animate size"
+    )
+
+    val animateRotation by animateFloatAsState(
+        targetValue = if (animationPlayed) 90 * 11f else 0f,
+        animationSpec = tween(
+            durationMillis = animDuration,
+            delayMillis = 0,
+            easing = LinearOutSlowInEasing
+        ),
+        label = "Animate rotation"
+    )
+
+    LaunchedEffect(key1 = true) {
+        animationPlayed = true
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (totalSum != 0) {
+            Box(
+                modifier = Modifier.size(animateSize.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Canvas(
+                    modifier = Modifier
+                        .size(radiusOuter * 2f)
+                        .rotate(animateRotation)
+                ) {
+                    arcs.map {
+                        drawArc(
+                            color = it.color,
+                            startAngle = lastValue,
+                            sweepAngle = it.targetSweepAngle,
+                            useCenter = false,
+                            style = Stroke(chartBarWidth.toPx(), cap = StrokeCap.Butt)
+                        )
+                        lastValue += it.targetSweepAngle
+                    }
+                }
+            }
+        }
+        Box(modifier = Modifier.padding(10.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                pieDataList.map {
+                    LegendRow(
+                        pieData = it,
+                        width = (radiusOuter * 2),
+                        boxSize = 24.dp,
+                        textStyle = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Shows a pie chart legend.
+ *
+ * @param pieData the [PieData] to display on the legend
+ * @param boxSize size of the colored box that display color for specific entry
+ * @param width the width of the legend
+ * @param textStyle the style of the text
+ */
 @Composable
 private fun LegendRow(
     pieData: PieData,
@@ -302,9 +372,10 @@ private fun LegendRow(
                 horizontalArrangement = Arrangement.spacedBy(5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(modifier = Modifier
-                    .size(boxSize)
-                    .background(pieData.color)
+                Box(
+                    modifier = Modifier
+                        .size(boxSize)
+                        .background(pieData.color)
                 )
                 Text(
                     text = pieData.description,
@@ -551,11 +622,8 @@ fun HomePreview() {
         Surface {
             HomeScreen(
                 navController = rememberNavController(),
-                studentList = studentListTest,
-                firstLaunch = true
-            ) {
-                // studentViewModel.onFirstLaunch()
-            }
+                studentList = studentListTest
+            )
         }
     }
 }

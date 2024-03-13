@@ -56,16 +56,20 @@ class StudentViewModel @Inject constructor(
         }
     }
 
-    fun insertStudent(student: StudentEntity, success: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            val result = repository.insertStudent(student)
-            if (result != -1L) {
-                repository.insertStudent(student)
-                Log.e(ROOM_DATABASE, "Insert ${student.studentName} success!")
-                success(true)
-            } else {
-                Log.e(ROOM_DATABASE, "Insert ${student.studentName} error!")
-                success(false)
+    fun insertStudent(student: StudentEntity, success: (Boolean, Boolean) -> Unit) {
+        if (studentList.value.size >= 10) {
+            success(false, true)
+        } else {
+            viewModelScope.launch {
+                val result = repository.insertStudent(student)
+                if (result != -1L) {
+                    repository.insertStudent(student)
+                    Log.d(ROOM_DATABASE, "Insert ${student.studentName} success!")
+                    success(true, false)
+                } else {
+                    Log.e(ROOM_DATABASE, "Insert ${student.studentName} error!")
+                    success(false, false)
+                }
             }
         }
     }
@@ -74,7 +78,7 @@ class StudentViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 repository.updateStudent(student)
-                Log.e(ROOM_DATABASE, "Update ${student.studentName} success!")
+                Log.d(ROOM_DATABASE, "Update ${student.studentName} success!")
                 success(true)
             } catch (e: Exception) {
                 Log.e(ROOM_DATABASE, "Update ${student.studentName} error!", e)
@@ -94,18 +98,46 @@ class StudentViewModel @Inject constructor(
         }
     }
 
+    fun deleteAllStudents(success: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val result = repository.deleteAllStudents(studentList.value)
+            if (result < 0) {
+                success(false)
+            } else {
+                success(true)
+            }
+        }
+    }
+
+    fun clearAllScores(success: (Boolean) -> Unit) {
+        val allStudents = emptyList<StudentEntity>().toMutableList()
+        studentList.value.map {
+            allStudents.add(it.copy(
+                arts = 0,
+                chichewa = 0,
+                english = 0,
+                maths = 0,
+                science = 0,
+                social = 0,
+                gradeGroup = 0
+            ))
+        }
+        viewModelScope.launch {
+            try {
+                repository.updateAllStudents(allStudents)
+                Log.d(ROOM_DATABASE, "Update success!")
+                success(true)
+            } catch (e: Exception) {
+                Log.e(ROOM_DATABASE, "Update error!", e)
+                success(false)
+            }
+        }
+    }
+
     fun onSortTypeChange(sortType: StudentSortType) {
         _studentState.update {
             it.copy(
                 progressSortType = sortType
-            )
-        }
-    }
-
-    fun onFirstLaunch() {
-        _studentState.update {
-            it.copy(
-                firstLaunch = false
             )
         }
     }
@@ -210,8 +242,7 @@ class StudentViewModel @Inject constructor(
         val studentId: String = "",
         val studentName: String = "",
         val gender: String = "",
-        val selectedStudent: StudentEntity? = null,
-        val firstLaunch: Boolean = true
+        val selectedStudent: StudentEntity? = null
     )
 
     sealed class UserAction {

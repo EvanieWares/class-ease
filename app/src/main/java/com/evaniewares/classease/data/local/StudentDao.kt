@@ -17,8 +17,14 @@ interface StudentDao {
     @Update
     suspend fun updateStudent(studentEntity: StudentEntity)
 
+    @Update
+    suspend fun updateAllStudents(students: List<StudentEntity>)
+
     @Delete
     suspend fun deleteStudent(studentEntity: StudentEntity): Int
+
+    @Delete
+    suspend fun deleteAllStudents(students: List<StudentEntity>): Int
 
     @Query("SELECT * from students WHERE student_id = :studentId")
     suspend fun getStudentById(studentId: Long): StudentEntity?

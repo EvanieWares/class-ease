@@ -66,7 +66,9 @@ fun StudentScreen(
     val studentList =
         studentViewModel.studentList.collectAsStateWithLifecycle(initialValue = emptyList())
     Surface(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 80.dp)
     ) {
         Column(
             modifier = Modifier

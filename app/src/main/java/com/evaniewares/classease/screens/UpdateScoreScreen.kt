@@ -14,7 +14,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -82,106 +81,103 @@ fun ScoringScreen(
         }
     }
 
-    Scaffold(
+    Surface(
         modifier = Modifier
             .fillMaxSize()
-    ) { paddingValues ->
-        Surface(
-            modifier = Modifier.padding(paddingValues)
+            .padding(80.dp)
+    ) {
+        LazyColumn(
+            modifier = Modifier.padding(5.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier.padding(5.dp)
-            ) {
-                item {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Display the subject drop down list for users to select from
-                        LearningAreas(
-                            subject = subject,
-                            onSubjectChange = { subjectType ->
-                                subject = subjectType
-                            }
-                        )
+            item {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(5.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Display the subject drop down list for users to select from
+                    LearningAreas(
+                        subject = subject,
+                        onSubjectChange = { subjectType ->
+                            subject = subjectType
+                        }
+                    )
 
-                        // Display the score updating form
-                        ScoringTextField(
-                            value = studentId,
-                            onValueChange = { value ->
-                                studentId = value
-                                newEntry = false
-                            },
-                            label = studentToUpdate.value?.studentName ?: "ID",
-                            onFocusChanged = { focusState ->
-                                if (focusState.hasFocus && newEntry) {
-                                    studentId = ""
-                                }
-                            },
-                            onDone = {
-                                keyboardController?.hide()
+                    // Display the score updating form
+                    ScoringTextField(
+                        value = studentId,
+                        onValueChange = { value ->
+                            studentId = value
+                            newEntry = false
+                        },
+                        label = studentToUpdate.value?.studentName ?: "ID",
+                        onFocusChanged = { focusState ->
+                            if (focusState.hasFocus && newEntry) {
+                                studentId = ""
                             }
-                        )
-                        ScoringTextField(
-                            value = score,
-                            onValueChange = { value ->
-                                score = value
-                                newEntry = false
-                            },
-                            label = "SCORE",
-                            onFocusChanged = { focusState ->
-                                if (focusState.hasFocus && newEntry) {
-                                    score = ""
-                                }
-                            },
-                            onDone = {
-                                keyboardController?.hide()
+                        },
+                        onDone = {
+                            keyboardController?.hide()
+                        }
+                    )
+                    ScoringTextField(
+                        value = score,
+                        onValueChange = { value ->
+                            score = value
+                            newEntry = false
+                        },
+                        label = "SCORE",
+                        onFocusChanged = { focusState ->
+                            if (focusState.hasFocus && newEntry) {
+                                score = ""
                             }
-                        )
-                        Button(
-                            onClick = {
-                                studentToUpdate.value?.let { oldStudent ->
-                                    val newStudent = updatedStudent(
-                                        student = oldStudent,
-                                        score = score.toInt(),
-                                        subject = subject
-                                    )
-                                    studentViewModel.updateStudent(
-                                        newStudent.copy(
-                                            gradeGroup = calculateGradeGroup(
-                                                newStudent.arts,
-                                                newStudent.chichewa,
-                                                newStudent.english,
-                                                newStudent.maths,
-                                                newStudent.science,
-                                                newStudent.social
-                                            )
+                        },
+                        onDone = {
+                            keyboardController?.hide()
+                        }
+                    )
+                    Button(
+                        onClick = {
+                            studentToUpdate.value?.let { oldStudent ->
+                                val newStudent = updatedStudent(
+                                    student = oldStudent,
+                                    score = score.toInt(),
+                                    subject = subject
+                                )
+                                studentViewModel.updateStudent(
+                                    newStudent.copy(
+                                        gradeGroup = calculateGradeGroup(
+                                            newStudent.arts,
+                                            newStudent.chichewa,
+                                            newStudent.english,
+                                            newStudent.maths,
+                                            newStudent.science,
+                                            newStudent.social
                                         )
-                                    ) { success ->
-                                        if (success) {
-                                            toastMsg(context, "Saved!")
-                                            newEntry = true
-                                            score = ""
-                                        } else {
-                                            toastMsg(
-                                                context,
-                                                "Unable to update. Check your input and try again!"
-                                            )
-                                        }
+                                    )
+                                ) { success ->
+                                    if (success) {
+                                        toastMsg(context, "Saved!")
+                                        newEntry = true
+                                        score = ""
+                                    } else {
+                                        toastMsg(
+                                            context,
+                                            "Unable to update. Check your input and try again!"
+                                        )
                                     }
                                 }
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 30.dp, end = 30.dp),
-                            enabled = isValidInputs(
-                                studentId = studentId,
-                                score = score,
-                                student = studentToUpdate.value
-                            )
-                        ) {
-                            Text(text = "Save")
-                        }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 30.dp, end = 30.dp),
+                        enabled = isValidInputs(
+                            studentId = studentId,
+                            score = score,
+                            student = studentToUpdate.value
+                        )
+                    ) {
+                        Text(text = "Save")
                     }
                 }
             }

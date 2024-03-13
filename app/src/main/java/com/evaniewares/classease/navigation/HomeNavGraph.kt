@@ -1,6 +1,11 @@
 package com.evaniewares.classease.navigation
 
+import android.widget.Toast
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -28,14 +33,10 @@ fun HomeNavGraph(
     ) {
         composable(route = HomeScreenRoutes.Home.route) {
             val studentList = studentViewModel.studentList.collectAsStateWithLifecycle().value
-            val state = studentViewModel.studentState.collectAsStateWithLifecycle().value
             HomeScreen(
                 navController = navController,
-                studentList = studentList,
-                firstLaunch = state.firstLaunch
-            ) {
-                studentViewModel.onFirstLaunch()
-            }
+                studentList = studentList
+            )
         }
         composable(route = HomeScreenRoutes.Students.route) {
             StudentScreen(
@@ -54,7 +55,28 @@ fun HomeNavGraph(
             )
         }
         composable(route = HomeScreenRoutes.Settings.route) {
-            SettingScreen(navController = navController)
+            val context = LocalContext.current
+            SettingScreen(
+                navController = navController,
+                onClearScores = {
+                    studentViewModel.clearAllScores { success ->
+                        if (success){
+                            Toast.makeText(context, "Scores cleared!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Failed!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                },
+                onClearAll = {
+                    studentViewModel.deleteAllStudents { success ->
+                        if (success){
+                            Toast.makeText(context, "All data cleared!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Failed!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            )
         }
         composable(route = HomeScreenRoutes.Account.route) {
             AccountScreen(navController = navController)
