@@ -84,7 +84,7 @@ fun ScoringScreen(
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .padding(80.dp)
+            .padding(bottom = 80.dp)
     ) {
         LazyColumn(
             modifier = Modifier.padding(5.dp)
