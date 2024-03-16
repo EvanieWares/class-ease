@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
@@ -59,12 +60,14 @@ fun HomeActivity(
 private fun BottomNavigationBar(
     navController: NavHostController
 ) {
-    val screens = listOf(
-        HomeBottomBarItem.Home,
-        HomeBottomBarItem.Students,
-        HomeBottomBarItem.Scoring,
-        HomeBottomBarItem.Progress
-    )
+    val screens = remember {
+        mutableListOf(
+            HomeBottomBarItem.Home,
+            HomeBottomBarItem.Students,
+            HomeBottomBarItem.Scoring,
+            HomeBottomBarItem.Progress
+        )
+    }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val showBottomBar = screens.any { it.route == currentDestination?.route }

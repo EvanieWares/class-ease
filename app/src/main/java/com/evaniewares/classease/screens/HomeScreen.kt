@@ -97,14 +97,16 @@ fun HomeScreen(
 ) {
     val scrollState = rememberScrollState()
 
-    val subjectPieDataList = listOf(
-        SubjectPieData("English", getOrangeColorFamily(), SubjectType.ENGLISH),
-        SubjectPieData("Chichewa", getGreenColorFamily(), SubjectType.CHICHEWA),
-        SubjectPieData("Mathematics", getRedColorFamily(), SubjectType.MATHEMATICS),
-        SubjectPieData("Primary Science", getCyanColorFamily(), SubjectType.SCIENCE),
-        SubjectPieData("Social & BK/RE", getPurpleColorFamily(), SubjectType.SOCIAL),
-        SubjectPieData("Arts & Life Skills", getGreenColorFamily(), SubjectType.ARTS),
-    )
+    val subjectPieDataList = remember {
+        mutableListOf(
+            SubjectPieData("English", getOrangeColorFamily(), SubjectType.ENGLISH),
+            SubjectPieData("Chichewa", getGreenColorFamily(), SubjectType.CHICHEWA),
+            SubjectPieData("Mathematics", getRedColorFamily(), SubjectType.MATHEMATICS),
+            SubjectPieData("Primary Science", getCyanColorFamily(), SubjectType.SCIENCE),
+            SubjectPieData("Social & BK/RE", getPurpleColorFamily(), SubjectType.SOCIAL),
+            SubjectPieData("Arts & Life Skills", getGreenColorFamily(), SubjectType.ARTS)
+        )
+    }
 
     Surface(
         modifier = Modifier

@@ -8,6 +8,7 @@ import com.evaniewares.classease.data.repository.ClassEaseRepository
 import com.evaniewares.classease.domain.model.StudentEntity
 import com.evaniewares.classease.utils.StudentSortType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +34,7 @@ class StudentViewModel @Inject constructor(
     }
 
     fun getStudentsSortByScore() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getStudentsSortByScore().collect { sortedStudents ->
                 _studentList.value = sortedStudents
             }
@@ -41,7 +42,7 @@ class StudentViewModel @Inject constructor(
     }
 
     fun getStudentsSortByGrade() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getStudentsSortByGrade().collect { sortedStudents ->
                 _studentList.value = sortedStudents
             }
@@ -49,7 +50,7 @@ class StudentViewModel @Inject constructor(
     }
 
     fun getStudentsSortById() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.getStudentsSortById().collect { sortedStudents ->
                 _studentList.value = sortedStudents
             }
