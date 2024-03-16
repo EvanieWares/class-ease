@@ -4,6 +4,7 @@
     --primary-color: #4D7C5B;
     --background-color: #D8EAEF;
     --primary-color-dark: #34543e;
+    --white: #fff
 }
 
 * {
@@ -11,6 +12,10 @@
     padding: 0;
     box-sizing: border-box;
     font-family: "Poppins", sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
 }
 
 .header__section {
@@ -43,6 +48,7 @@
     font-size: 16px;
     font-weight: 500;
     margin-bottom: 40px;
+    max-width: 60%;
 }
 
 .content .download-btn {
@@ -57,4 +63,40 @@
 
 .content .download-btn:hover {
     background: #79ac71;
+}
+
+section.container {
+    display: flex;
+    flex-direction: column;
+    margin: 0px 50px;
+    padding: 40px;
+    background-color: var(--white);
+    border-radius: 50px;
+    min-height: 700px;
+}
+
+section.container div.automatic-grading {
+    position: relative;
+    padding: 40px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.title-description {
+    width: 50%;
+}
+
+.title-description h2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.image-container {
+    width: 50%;
+    height: 600px;
+    background-color: #000;
 }
