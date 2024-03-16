@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+    --primary-color: #4D7C5B;
+    --background-color: #D8EAEF;
+    --primary-color-dark: #34543e;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+.header__section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background: url(../images/background.png) no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.content {
+    max-width: 650px;
+    margin: 60px 100px;
+}
+
+.content .info h2 {
+    color: var(--primary-color);
+    font-size: 55px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    line-height: 60px;
+    margin-bottom: 30px;
+}
+
+.content .info p {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 40px;
+}
+
+.content .download-btn {
+    color: #fff;
+    background: var(--primary-color);
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+.content .download-btn:hover {
+    background: #79ac71;
+}
