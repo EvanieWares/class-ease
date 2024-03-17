@@ -1,20 +1,33 @@
 header {
-    position: relative;
+    position: fixed;
     top: 0;
     width: 100%;
-    padding: 30px 100px;
+    padding: 10px 60px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    z-index: 1000;
+    background-color: rgba(216, 234, 239, 0.9);
 }
 
 header .logo {
     position: relative;
-    color: #000;
-    font-size: 30px;
-    font-weight: 800;
     text-decoration: none;
-    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+}
+
+header .logo h2 {
+    color: var(--primary-color);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -2px;
+}
+
+header .logo img {
+    margin: 0px 5px;
+    width: 32px;
+    height: 32px;
 }
 
 header .navigation a {
@@ -23,8 +36,9 @@ header .navigation a {
     text-decoration: none;
     font-weight: 500;
     letter-spacing: 1px;
-    padding: 2px 15px;
+    padding: 2px 5px;
     border-radius: 20px;
+    transition: 0.5s;
 }
 
 header .navigation a:not(:last-child) {

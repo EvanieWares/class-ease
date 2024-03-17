@@ -3,48 +3,78 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- JQuery -->
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+	<script type="text/javascript" src="scripts/script.js"></script>
   <link href="styles/index.css" rel="stylesheet" />
   <link href="styles/header.css" rel="stylesheet" />
-  <link rel="icon" type="image/webp" href="/images/favcon.webp" />
+  <link href="styles/footer.css" rel="stylesheet" />
+  <link rel="icon" type="image/webp" href="images/favcon.webp" />
+
+  <!-- AOS: Animate on scroll library -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+  <!-- Font awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
   <title>ClassEase</title>
 </head>
-<body>
-  <div class="header__section">
-    <header>
-      <h2><a href="#" class="logo">ClassEase</a></h2>
-      <div class="navigation">
-        <a href="#">Home</a>
-        <a href="#">About</a>
-        <a href="#">Contact</a>
-      </div>
-    </header>
-    <div class="content">
-      <div class="info">
-        <h2>ClassEase</h2>
-        <p>Simplify grading and streamline administrative tasks for educators.</p>
-        <a href="#" class="download-btn">Download</a>
-      </div>
-    </div>
-  </div>
-  <section class="container">
-    <div class="feature">
-      <div class="title-description">
-        <h2>Automatic grading</h2>
-        <p>ClassEase automates grading, saving educators valuable time by calculating scores and ranking students effortlessly.</p>
-      </div>
-      <div class="image-container">
-        <img src="" alt="">
+  <body>
+    <div class="header__section">
+      <header>
+        <a href="#" class="logo">
+          <img src="images/favcon.webp" alt="Logo" class="img-logo">
+          <h2>ClassEase</h2>
+        </a>
+        <div class="navigation">
+          <a href="#">Home</a>
+          <a href="#how-to">How to</a>
+          <a href="#about">About</a>
+        </div>
+      </header>
+      <div class="content">
+        <div class="info">
+          <!-- <h2>ClassEase</h2> -->
+          <p>Simplify grading and streamline administrative tasks for educators.</p>
+          <a href="#" class="download-btn">Download</a>
+        </div>
       </div>
     </div>
-    <div class="feature">
-      <div class="title-description">
-        <h2>Real-time Sync</h2>
-        <p>ClassEase automates grading, saving educators valuable time by calculating scores and ranking students effortlessly.</p>
+    <section id="container">
+      <!-- Features -->
+    </section>
+    <section id="about">
+      <div data-aos="fade-in" data-aos-delay="320" data-aos-duration="1700">
+        <h1>About</h1>
+        <p>As a primary school teacher, I struggled with the manual grading process and administrative tasks. Inspired by these challenges, I embarked on developing ClassEase to simplify grading and streamline administrative workflows. This project is part of my portfolio for Holberton School, where I'm honing my skills in software development.</p>
       </div>
-      <div class="image-container">
-        <img src="" alt="">
+    </section>
+    <section id="how-to">
+      <div id="video-container">
+        <h1 data-aos="slide-left" data-aos-delay="320" data-aos-duration="1700">How to use <span>ClassEase</span> app</h1>
       </div>
-    </div>
-  </section>
-</body>
+    </section>
+    <footer>
+      <div class="footer-container">
+        <div class="social-icons">
+          <a href="https://www.linkedin.com/in/chisopsyelera/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+          <a href="https://twitter.com/EvanieWares" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+          <a href="https://github.com/EvanieWares" target="_blank"><i class="fa-brands fa-github"></i></a>
+          <a href="https://www.youtube.com/channel/UC159FPsEHsCitbksCxDHwhw" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+        </div>
+        <div class="github-link footer-bottom">
+          <a href="https://github.com/EvanieWares">View github repository</a>
+        </div>
+        <div class="footer-bottom">
+          <p>2024 &copy EvanieWares</p>
+        </div>
+      </div>
+    </footer>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init();
+    </script>
+  </body>
 </html>

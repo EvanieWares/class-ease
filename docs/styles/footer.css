@@ -1,0 +1,67 @@
+footer {
+    background-color: rgb(14, 1, 19);
+}
+
+.footer-container {
+    width: 100%;
+    padding: 70px 30px 20px;
+}
+
+.social-icons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.social-icons a {
+    text-decoration: none;
+    padding: 10px;
+    background-color: white;
+    margin: 10px;
+    border-radius: 50%;
+}
+
+.social-icons a i {
+    color: var(--primary-color-dark);
+    font-size: 2em;
+    opacity: 0.9;
+}
+
+.social-icons a:hover {
+    background-color: var(--primary-color-dark);
+    transition: 0.5s;
+}
+
+.social-icons a:hover i {
+    color: white;
+    transition: 0.5s;
+}
+
+.github-link a {
+    margin-bottom: 20px;
+}
+
+.github-link a {
+    font-size: 20px;
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: center;
+}
+
+.footer-bottom p {
+    color: white;
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .footer-nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .footer-nav ul li {
+        margin: 5px;
+    }
+}
