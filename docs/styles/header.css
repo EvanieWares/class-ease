@@ -48,3 +48,9 @@ header .navigation a:not(:last-child) {
 header .navigation a:hover {
     background: #1dab3c;
 }
+
+@media (width < 900px) {
+    header {
+        padding: 10px 20px;
+    }
+}

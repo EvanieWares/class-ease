@@ -50,11 +50,9 @@ function addVideo(videoId) {
     const videoUrl = `https://www.youtube.com/embed/${videoId}`;
     const $iframe = $('<iframe>', {
         'src': videoUrl,
-        'width': 560,
-        'height': 315,
         'frameborder': 0,
         'allowfullscreen': true
-    }).attr('data-aos', 'slide-right').attr('data-aos-delay', '320').attr('data-aos-duration', '1700');
+    }).addClass('how-to-video');
 
     $('#video-container').append($iframe);
 }

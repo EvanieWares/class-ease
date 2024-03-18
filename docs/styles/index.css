@@ -132,11 +132,12 @@ section.intro {
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex-wrap: wrap;
 }
 
-iframe {
+.how-to-video {
     padding: 30px;
+    width: 560px;
+    height: 315px;
 }
 
 #about {
@@ -175,5 +176,48 @@ iframe {
     .image-container {
         width: 100%;
         justify-content: center;
+    }
+
+    .how-to-video {
+        padding: 30px;
+        width: 320px;
+        height: 180px;
+    }
+
+    section {
+        margin: 0px 20px;
+        padding: 10px;
+    }
+
+    .image-container img {
+        margin-top: 10px;
+        width: 220px;
+        height: 476px;
+        border-radius: 20px;
+        border: 5px solid var(--primary-color);
+    }
+
+    .header__section {
+        background: none;
+    }
+
+    .title-description p {
+        text-align: center;
+    }
+
+    #about {
+        min-height: 400px;
+    }
+
+    #about p {
+        font-weight: 500;
+        font-size: 18px;
+        text-align: center;
+        max-width: 100%;
+    }
+    
+    #about h1 {
+        font-size: 28px;
+        font-weight: 600;
     }
 }
